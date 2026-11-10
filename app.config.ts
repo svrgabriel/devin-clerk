@@ -67,7 +67,7 @@ export const appConfig = {
         "Navegue por instituições verificadas por causa e cidade para encontrar onde sua doação ajuda mais.",
     },
     {
-      title: "Mapa de pontos de coleta",
+      title: "Mapa de coleta",
       description:
         "Veja pontos de coleta e campanhas ativas perto de você em um mapa interativo.",
     },
