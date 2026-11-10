@@ -18,20 +18,23 @@ export function Header() {
           {appConfig.name}
         </Link>
         <nav className="flex items-center gap-6 text-sm">
+          <Link href="/needs" className="hover:text-accent">
+            Necessidades
+          </Link>
           <Link href="/dashboard" className="hover:text-accent">
-            Dashboard
+            Painel
           </Link>
           <Suspense>
             <Show when="signed-out">
               <div className="flex items-center gap-3">
                 <SignInButton>
                   <button className="font-medium hover:text-accent">
-                    Sign in
+                    Entrar
                   </button>
                 </SignInButton>
                 <SignUpButton>
                   <button className="rounded-full bg-accent px-4 py-2 font-medium text-white transition hover:opacity-90">
-                    Sign up
+                    Cadastrar
                   </button>
                 </SignUpButton>
               </div>

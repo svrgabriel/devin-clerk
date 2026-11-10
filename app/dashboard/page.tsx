@@ -18,10 +18,10 @@ export default async function DashboardPage() {
         <span className="text-4xl" aria-hidden>
           🚧
         </span>
-        <h1 className="text-3xl font-bold">Welcome, {name}!</h1>
+        <h1 className="text-3xl font-bold">Olá, {name}!</h1>
         <p className="text-lg text-black/70">
-          {appConfig.name} is coming soon. You&apos;re on the early-access list.
-          Here&apos;s what we&apos;re building next:
+          O {appConfig.name} está chegando. Você está na lista de early access —
+          veja o que estamos construindo:
         </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -31,9 +31,9 @@ export default async function DashboardPage() {
       </div>
       {nextFeature && (
         <div className="rounded-2xl border border-dashed border-accent/40 bg-accent/5 px-5 py-4 text-sm">
-          <strong className="text-accent">Keep building:</strong> open Devin and
-          ask it to &ldquo;Build &lsquo;{nextFeature.title}&rsquo; from the
-          Coming soon page.&rdquo;
+          <strong className="text-accent">Continue construindo:</strong> abra o
+          Devin e peça &ldquo;Build &lsquo;{nextFeature.title}&rsquo; da página
+          Coming soon.&rdquo;
         </div>
       )}
     </section>
