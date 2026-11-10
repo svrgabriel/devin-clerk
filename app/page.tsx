@@ -9,15 +9,18 @@ export default function Home() {
       </span>
       <h1 className="text-5xl font-bold tracking-tight">{appConfig.name}</h1>
       <p className="max-w-xl text-lg text-black/70">{appConfig.description}</p>
+      <p className="max-w-xl text-base text-black/50">
+        Descubra instituições verificadas, veja o que cada uma mais precisa agora
+        e encontre pontos de coleta perto de você.
+      </p>
       <Link
         href="/dashboard"
         className="rounded-full bg-accent px-6 py-3 font-medium text-white shadow-sm transition hover:opacity-90"
       >
-        Get early access →
+        Quero doar →
       </Link>
       <p className="text-sm text-black/50">
-        This page is public. The early-access page should be for signed-in users
-        only.
+        Entre para acessar a lista de early access e acompanhar as novidades.
       </p>
     </section>
   );
