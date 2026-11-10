@@ -62,27 +62,27 @@ export const appConfig = {
   ] satisfies Institution[],
   upcomingFeatures: [
     {
-      title: "Institution directory",
+      title: "Catálogo de instituições",
       description:
         "Navegue por instituições verificadas por causa e cidade para encontrar onde sua doação ajuda mais.",
     },
     {
-      title: "Interactive drop-off map",
+      title: "Mapa de pontos de coleta",
       description:
         "Veja pontos de coleta e campanhas ativas perto de você em um mapa interativo.",
     },
     {
-      title: "Money donations",
+      title: "Doações em dinheiro",
       description:
         "Doe diretamente para as instituições com pagamentos online seguros.",
     },
     {
-      title: "Donation matching",
+      title: "Combinação de doações",
       description:
         "Diga o que você quer doar e sugerimos as instituições que mais precisam.",
     },
     {
-      title: "Donation history",
+      title: "Histórico de doações",
       description:
         "Acompanhe suas doações anteriores e o impacto que elas geraram.",
     },
