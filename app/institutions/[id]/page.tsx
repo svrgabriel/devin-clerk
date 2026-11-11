@@ -95,10 +95,14 @@ export default async function InstitutionProfilePage({
         {institution.address ? (
           <p className="text-sm">
             <span className="font-medium">Endereço:</span> {institution.address}
-            {institution.cep ? ` — CEP ${institution.cep}` : ""}
           </p>
         ) : (
           <p className="text-sm text-black/50 dark:text-white/50">Endereço não informado.</p>
+        )}
+        {institution.cep && (
+          <p className="text-sm">
+            <span className="font-medium">CEP:</span> {institution.cep}
+          </p>
         )}
         {institution.hours ? (
           <p className="text-sm">
