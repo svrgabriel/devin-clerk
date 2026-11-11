@@ -5,6 +5,7 @@ import { FeatureCard } from "@/components/FeatureCard";
 import { db } from "@/lib/db";
 import { requireProfile } from "@/lib/profile";
 import { NeedForm } from "./NeedForm";
+import { PixForm } from "./PixForm";
 
 export default async function DashboardPage() {
   await auth.protect();
@@ -22,7 +23,7 @@ export default async function DashboardPage() {
     role === "instituicao"
       ? (
           await sql`
-            SELECT id, name FROM institutions WHERE clerk_user_id = ${userId}
+            SELECT id, name, pix_key FROM institutions WHERE clerk_user_id = ${userId}
           `
         )[0]
       : null;
@@ -69,6 +70,46 @@ export default async function DashboardPage() {
               : "Responda os doadores."}
           </span>
         </Link>
+        <Link
+          href="/institutions"
+          className="flex flex-col gap-1 rounded-2xl border border-black/10 bg-white p-5 transition hover:border-accent/40"
+        >
+          <span className="font-semibold">Instituições</span>
+          <span className="text-sm text-black/60">
+            Catálogo por causa e cidade.
+          </span>
+        </Link>
+        <Link
+          href="/map"
+          className="flex flex-col gap-1 rounded-2xl border border-black/10 bg-white p-5 transition hover:border-accent/40"
+        >
+          <span className="font-semibold">Mapa de coleta</span>
+          <span className="text-sm text-black/60">
+            Pontos de coleta no mapa.
+          </span>
+        </Link>
+        {role === "doador" && (
+          <>
+            <Link
+              href="/match"
+              className="flex flex-col gap-1 rounded-2xl border border-black/10 bg-white p-5 transition hover:border-accent/40"
+            >
+              <span className="font-semibold">Combinar doação</span>
+              <span className="text-sm text-black/60">
+                Diga o que doar e ache quem precisa.
+              </span>
+            </Link>
+            <Link
+              href="/history"
+              className="flex flex-col gap-1 rounded-2xl border border-black/10 bg-white p-5 transition hover:border-accent/40"
+            >
+              <span className="font-semibold">Suas doações</span>
+              <span className="text-sm text-black/60">
+                Histórico e impacto.
+              </span>
+            </Link>
+          </>
+        )}
       </div>
 
       {role === "instituicao" && myInstitution && (
@@ -77,6 +118,12 @@ export default async function DashboardPage() {
             Publicar necessidade — {myInstitution.name}
           </h2>
           <NeedForm />
+          <div className="flex flex-col gap-2">
+            <h3 className="text-sm font-medium text-black/70">
+              Chave Pix para doações em dinheiro
+            </h3>
+            <PixForm initial={myInstitution.pix_key} />
+          </div>
           {myNeeds.length > 0 && (
             <ul className="flex flex-col gap-1 text-sm">
               {myNeeds.map((n) => (
@@ -90,14 +137,16 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="flex flex-col gap-4">
-        <h2 className="text-xl font-semibold">O que vem por aí</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {appConfig.upcomingFeatures.map((feature, index) => (
-            <FeatureCard key={feature.title} feature={feature} index={index} />
-          ))}
+      {appConfig.upcomingFeatures.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <h2 className="text-xl font-semibold">O que vem por aí</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {appConfig.upcomingFeatures.map((feature, index) => (
+              <FeatureCard key={feature.title} feature={feature} index={index} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {nextFeature && (
         <div className="rounded-2xl border border-dashed border-accent/40 bg-accent/5 px-5 py-4 text-sm">
