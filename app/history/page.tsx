@@ -25,13 +25,13 @@ export default async function HistoryPage() {
       ? await sql`
           SELECT * FROM (
             SELECT 'money' AS kind, d.id, d.amount_cents, NULL AS item, d.created_at, i.name AS institution,
-                   NULL AS donor_name, NULL AS donor_user_id
+                   NULL AS donor_name, NULL AS donor_user_id, d.method
             FROM donations d
             JOIN institutions i ON i.id = d.institution_id
             WHERE d.donor_user_id = ${userId}
             UNION ALL
             SELECT 'in_person' AS kind, p.id, NULL AS amount_cents, p.item, p.created_at, i.name AS institution,
-                   NULL AS donor_name, NULL AS donor_user_id
+                   NULL AS donor_name, NULL AS donor_user_id, 'presencial' AS method
             FROM in_person_donations p
             JOIN institutions i ON i.id = p.institution_id
             WHERE ${sql.unsafe(pid)} IN (${donorNorm}, ${donorCodeNorm})
@@ -39,12 +39,20 @@ export default async function HistoryPage() {
           ORDER BY created_at DESC
         `
       : await sql`
-          SELECT 'money' AS kind, d.id, d.amount_cents, NULL AS item, d.created_at, i.name AS institution,
-                 d.donor_name, d.donor_user_id
-          FROM donations d
-          JOIN institutions i ON i.id = d.institution_id
-          WHERE i.clerk_user_id = ${userId}
-          ORDER BY d.created_at DESC
+          SELECT * FROM (
+            SELECT 'money' AS kind, d.id, d.amount_cents, NULL AS item, d.created_at, i.name AS institution,
+                   d.donor_name, d.donor_user_id, d.method
+            FROM donations d
+            JOIN institutions i ON i.id = d.institution_id
+            WHERE i.clerk_user_id = ${userId}
+            UNION ALL
+            SELECT 'in_person' AS kind, p.id, NULL AS amount_cents, p.item, p.created_at, i.name AS institution,
+                   p.donor_name, p.donor_user_id, 'presencial' AS method
+            FROM in_person_donations p
+            JOIN institutions i ON i.id = p.institution_id
+            WHERE i.clerk_user_id = ${userId}
+          ) t
+          ORDER BY created_at DESC
         `;
 
   const moneyTotal = donations.reduce(
@@ -74,13 +82,22 @@ export default async function HistoryPage() {
           >
             <div className="flex flex-col">
               <span className="font-medium">
-                {d.institution}
+                {role === "instituicao" && d.donor_name ? (
+                  <Link
+                    href={`/donors/${encodeURIComponent(d.donor_user_id)}`}
+                    className="hover:text-accent hover:underline"
+                  >
+                    {d.donor_name}
+                  </Link>
+                ) : (
+                  d.institution
+                )}
                 {d.kind === "in_person" ? ` — ${d.item}` : ""}
               </span>
               <span className="text-sm text-black/50">
                 {dateFmt.format(new Date(d.created_at))}
-                {d.kind === "in_person" ? " · entrega presencial" : ""}
-                {d.donor_name && (
+                {d.method ? ` · ${d.method === "presencial" ? "entrega presencial" : d.method}` : ""}
+                {role === "doador" && d.donor_name && (
                   <>
                     {" · "}
                     <Link
