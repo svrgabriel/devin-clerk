@@ -36,6 +36,7 @@ body {
 .dark .border-black\/15 {
   border-color: rgb(255 255 255 / 0.14);
 }
+.dark .text-black\/80,
 .dark .text-black\/70,
 .dark .text-black\/60,
 .dark .text-black\/50,
