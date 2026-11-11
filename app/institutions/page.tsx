@@ -15,6 +15,7 @@ export default async function InstitutionsPage({
   const rows = await sql`
     SELECT i.id, i.name, i.cause, i.city, i.pix_key IS NOT NULL AS accepts_pix,
            i.clerk_user_id IS NOT NULL AS contactable,
+           (i.address IS NOT NULL OR i.hours IS NOT NULL) AS has_dropoff,
            count(n.id)::int AS needs_count
     FROM institutions i
     LEFT JOIN needs n ON n.institution_id = i.id
@@ -105,12 +106,14 @@ export default async function InstitutionsPage({
               {role === "doador" && inst.contactable && (
                 <ChatButton institutionId={inst.id} />
               )}
-              <Link
-                href={`/institutions/${inst.id}#entrega`}
-                className="rounded-full border border-black/15 px-4 py-1.5 text-sm font-medium hover:border-accent/40 hover:text-accent"
-              >
-                Levar ao local
-              </Link>
+              {inst.has_dropoff && (
+                <Link
+                  href={`/institutions/${inst.id}#entrega`}
+                  className="rounded-full border border-black/15 px-4 py-1.5 text-sm font-medium hover:border-accent/40 hover:text-accent"
+                >
+                  Levar ao local
+                </Link>
+              )}
             </div>
           </article>
         ))}

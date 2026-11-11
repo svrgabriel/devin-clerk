@@ -10,6 +10,8 @@ export type Institution = {
   cause: string;
   city: string;
   pixKey?: string;
+  address?: string;
+  hours?: string;
   lat?: number;
   lng?: number;
   needs: { item: string; priority: NeedPriority }[];
@@ -27,6 +29,8 @@ export const appConfig = {
       cause: "Abrigo infantil",
       city: "Vila Velha",
       pixKey: "doacoes@casadocaminho.org",
+      address: "R. das Acácias, 120 — Praia de Itaparica, Vila Velha/ES",
+      hours: "Seg–Sex, 8h–17h; Sáb, 8h–12h",
       lat: -20.3417,
       lng: -40.2913,
       needs: [
@@ -40,6 +44,8 @@ export const appConfig = {
       cause: "Segurança alimentar",
       city: "Vitória",
       pixKey: "pix@bancodealimentoses.org",
+      address: "Av. Leitão da Silva, 500 — Centro, Vitória/ES",
+      hours: "Seg–Sex, 9h–18h",
       lat: -20.3155,
       lng: -40.3128,
       needs: [
@@ -53,6 +59,8 @@ export const appConfig = {
       cause: "Proteção animal",
       city: "Vila Velha",
       pixKey: "pix@amigosdosanimais.org",
+      address: "R. Prof. Vamoré, 45 — Glória, Vila Velha/ES",
+      hours: "Todos os dias, 8h–20h",
       lat: -20.3539,
       lng: -40.2967,
       needs: [
@@ -66,6 +74,8 @@ export const appConfig = {
       cause: "Acolhimento de idosos",
       city: "Cariacica",
       pixKey: "pix@larsaovicente.org",
+      address: "R. Expedito Garcia, 210 — Campo Grande, Cariacica/ES",
+      hours: "Seg–Sáb, 9h–17h",
       lat: -20.2632,
       lng: -40.4198,
       needs: [
