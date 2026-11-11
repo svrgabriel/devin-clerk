@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireProfile } from "@/lib/profile";
+import { donorIdNormSql, normalizeDonorId } from "@/lib/donor";
 
 const fmt = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -15,24 +17,31 @@ export default async function HistoryPage() {
   const { userId, role } = await requireProfile();
   const sql = await db();
 
+  const donorNorm = normalizeDonorId(userId);
+  const pid = donorIdNormSql("p.donor_user_id");
   const donations =
     role === "doador"
       ? await sql`
           SELECT * FROM (
-            SELECT 'money' AS kind, d.id, d.amount_cents, NULL AS item, d.created_at, i.name AS institution
+            SELECT 'money' AS kind, d.id, d.amount_cents, NULL AS item, d.created_at, i.name AS institution,
+                   NULL AS donor_name, NULL AS donor_user_id
             FROM donations d
             JOIN institutions i ON i.id = d.institution_id
             WHERE d.donor_user_id = ${userId}
             UNION ALL
-            SELECT 'in_person' AS kind, p.id, NULL AS amount_cents, p.item, p.created_at, i.name AS institution
+            SELECT 'in_person' AS kind, p.id, NULL AS amount_cents, p.item, p.created_at, i.name AS institution,
+                   NULL AS donor_name, NULL AS donor_user_id
             FROM in_person_donations p
             JOIN institutions i ON i.id = p.institution_id
-            WHERE p.donor_user_id = ${userId}
+            WHERE ${sql.unsafe(pid)} = ${donorNorm}
+               OR ${donorNorm} LIKE ${sql.unsafe(pid)} || '%'
+               OR ${sql.unsafe(pid)} LIKE ${donorNorm} || '%'
           ) t
           ORDER BY created_at DESC
         `
       : await sql`
-          SELECT 'money' AS kind, d.id, d.amount_cents, NULL AS item, d.created_at, i.name AS institution
+          SELECT 'money' AS kind, d.id, d.amount_cents, NULL AS item, d.created_at, i.name AS institution,
+                 d.donor_name, d.donor_user_id
           FROM donations d
           JOIN institutions i ON i.id = d.institution_id
           WHERE i.clerk_user_id = ${userId}
@@ -72,6 +81,17 @@ export default async function HistoryPage() {
               <span className="text-sm text-black/50">
                 {dateFmt.format(new Date(d.created_at))}
                 {d.kind === "in_person" ? " · entrega presencial" : ""}
+                {d.donor_name && (
+                  <>
+                    {" · "}
+                    <Link
+                      href={`/donors/${encodeURIComponent(d.donor_user_id)}`}
+                      className="hover:text-accent hover:underline"
+                    >
+                      {d.donor_name}
+                    </Link>
+                  </>
+                )}
               </span>
             </div>
             {d.amount_cents != null && (
