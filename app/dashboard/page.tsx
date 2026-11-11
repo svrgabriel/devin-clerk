@@ -25,7 +25,7 @@ export default async function DashboardPage() {
       ? (
           await sql`
             SELECT id, name, cause, city, pix_key, address, hours, story,
-                   instagram, facebook, website, photos
+                   instagram, facebook, website, photos, accepts_messages
             FROM institutions WHERE clerk_user_id = ${userId}
           `
         )[0]
@@ -168,6 +168,7 @@ export default async function DashboardPage() {
               facebook: myInstitution.facebook ?? "",
               website: myInstitution.website ?? "",
               photos: myInstitution.photos ?? "",
+              acceptsMessages: myInstitution.accepts_messages ?? true,
             }}
           />
         ) : (

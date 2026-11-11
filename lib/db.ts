@@ -76,6 +76,9 @@ async function init() {
     )
   `;
   await sql`ALTER TABLE donor_profiles ADD COLUMN IF NOT EXISTS photo_url TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS accepts_messages BOOLEAN NOT NULL DEFAULT true`;
+  await sql`ALTER TABLE conversations ADD COLUMN IF NOT EXISTS donor_last_read_at TIMESTAMPTZ NOT NULL DEFAULT now()`;
+  await sql`ALTER TABLE conversations ADD COLUMN IF NOT EXISTS inst_last_read_at TIMESTAMPTZ NOT NULL DEFAULT now()`;
   await sql`
     CREATE TABLE IF NOT EXISTS donations (
       id SERIAL PRIMARY KEY,

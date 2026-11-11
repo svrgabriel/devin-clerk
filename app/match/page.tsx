@@ -22,7 +22,7 @@ export default async function MatchPage({
   const rows = term
     ? await sql`
         SELECT i.id, i.name, i.cause, i.city, i.pix_key IS NOT NULL AS accepts_pix,
-               i.clerk_user_id IS NOT NULL AS contactable,
+               i.clerk_user_id IS NOT NULL AND i.accepts_messages AS contactable,
                n.item, n.priority
         FROM needs n
         JOIN institutions i ON i.id = n.institution_id

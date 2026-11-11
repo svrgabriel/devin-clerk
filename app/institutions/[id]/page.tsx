@@ -24,7 +24,7 @@ export default async function InstitutionProfilePage({
   const [institution] = await sql`
     SELECT id, name, cause, city, cnpj, pix_key, address, hours, story,
            instagram, facebook, website, photos,
-           clerk_user_id IS NOT NULL AS contactable
+           clerk_user_id IS NOT NULL AND accepts_messages AS contactable
     FROM institutions WHERE id = ${institutionId}
   `;
   if (!institution) notFound();

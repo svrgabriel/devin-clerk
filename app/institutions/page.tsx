@@ -14,7 +14,7 @@ export default async function InstitutionsPage({
 
   const rows = await sql`
     SELECT i.id, i.name, i.cause, i.city, i.pix_key IS NOT NULL AS accepts_pix,
-           i.clerk_user_id IS NOT NULL AS contactable,
+           i.clerk_user_id IS NOT NULL AND i.accepts_messages AS contactable,
            (i.address IS NOT NULL OR i.hours IS NOT NULL) AS has_dropoff,
            count(n.id)::int AS needs_count
     FROM institutions i

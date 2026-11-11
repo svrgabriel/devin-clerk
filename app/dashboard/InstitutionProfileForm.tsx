@@ -14,6 +14,7 @@ type Fields = {
   facebook: string;
   website: string;
   photos: string;
+  acceptsMessages: boolean;
 };
 
 const INPUT =
@@ -25,7 +26,7 @@ export function InstitutionProfileForm({ initial }: { initial: Fields }) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  function set<K extends keyof Fields>(key: K, value: string) {
+  function set<K extends keyof Fields>(key: K, value: Fields[K]) {
     setFields((f) => ({ ...f, [key]: value }));
     setSaved(false);
   }
@@ -109,6 +110,15 @@ export function InstitutionProfileForm({ initial }: { initial: Fields }) {
         value={fields.story}
         onChange={(e) => set("story", e.target.value)}
       />
+      <label className="flex items-center gap-2 text-sm sm:col-span-2">
+        <input
+          type="checkbox"
+          checked={fields.acceptsMessages}
+          onChange={(e) => set("acceptsMessages", e.target.checked)}
+          className="h-4 w-4 accent-accent"
+        />
+        Aceitar mensagens de doadores
+      </label>
       <div className="flex items-center gap-3 sm:col-span-2">
         <button
           type="submit"

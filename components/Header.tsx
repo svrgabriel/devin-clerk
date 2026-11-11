@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import { appConfig } from "@/app.config";
 
@@ -16,7 +16,7 @@ function NavMenu({
   items,
 }: {
   label: string;
-  items: { href: string; label: string }[];
+  items: { href: string; label: string; badge?: number }[];
 }) {
   return (
     <div className="group relative">
@@ -44,9 +44,14 @@ function NavMenu({
               key={item.href}
               href={item.href}
               onClick={(e) => e.currentTarget.blur()}
-              className="block px-4 py-2 hover:bg-accent/10 hover:text-accent"
+              className="flex items-center justify-between gap-2 px-4 py-2 hover:bg-accent/10 hover:text-accent"
             >
               {item.label}
+              {item.badge ? (
+                <span className="min-w-5 rounded-full bg-accent px-1.5 py-0.5 text-center text-xs font-semibold text-white">
+                  {item.badge}
+                </span>
+              ) : null}
             </Link>
           ))}
         </div>
@@ -56,6 +61,13 @@ function NavMenu({
 }
 
 export function Header() {
+  const [unread, setUnread] = useState(0);
+  useEffect(() => {
+    fetch("/api/messages/unread")
+      .then((r) => (r.ok ? r.json() : { count: 0 }))
+      .then((d) => setUnread(d.count ?? 0))
+      .catch(() => {});
+  }, []);
   return (
     <header className="border-b border-black/10 bg-white/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
@@ -83,7 +95,7 @@ export function Header() {
             label="Conta"
             items={[
               { href: "/dashboard", label: "Painel" },
-              { href: "/messages", label: "Mensagens" },
+              { href: "/messages", label: "Mensagens", badge: unread },
             ]}
           />
           <Suspense>
