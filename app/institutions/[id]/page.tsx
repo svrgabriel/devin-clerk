@@ -23,7 +23,7 @@ export default async function InstitutionProfilePage({
   const sql = await db();
   const [institution] = await sql`
     SELECT id, name, cause, city, cnpj, pix_key, address, hours, story,
-           instagram, facebook, website,
+           instagram, facebook, website, photos,
            clerk_user_id IS NOT NULL AS contactable
     FROM institutions WHERE id = ${institutionId}
   `;
@@ -33,6 +33,11 @@ export default async function InstitutionProfilePage({
     SELECT item, priority FROM needs
     WHERE institution_id = ${institutionId} ORDER BY id
   `;
+
+  const photos = (institution.photos ?? "")
+    .split("\n")
+    .map((p: string) => p.trim())
+    .filter(Boolean);
 
   const social = [
     { label: "Instagram", url: institution.instagram },
@@ -50,6 +55,20 @@ export default async function InstitutionProfilePage({
           {institution.cnpj ? ` · CNPJ ${institution.cnpj}` : ""}
         </p>
       </div>
+
+      {photos.length > 0 && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {photos.map((src: string) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={src}
+              src={src}
+              alt={`Foto de ${institution.name}`}
+              className="h-48 w-full rounded-2xl border border-black/10 object-cover"
+            />
+          ))}
+        </div>
+      )}
 
       {institution.story && (
         <div className="flex flex-col gap-2 rounded-2xl border border-black/10 bg-white p-5">

@@ -27,6 +27,7 @@ async function init() {
   await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS instagram TEXT`;
   await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS facebook TEXT`;
   await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS website TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS photos TEXT`;
   await sql`
     DELETE FROM institutions a
     USING institutions b
@@ -70,9 +71,11 @@ async function init() {
       description TEXT,
       instagram TEXT,
       facebook TEXT,
-      website TEXT
+      website TEXT,
+      photo_url TEXT
     )
   `;
+  await sql`ALTER TABLE donor_profiles ADD COLUMN IF NOT EXISTS photo_url TEXT`;
   await sql`
     CREATE TABLE IF NOT EXISTS donations (
       id SERIAL PRIMARY KEY,
