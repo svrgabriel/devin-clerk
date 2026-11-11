@@ -5,7 +5,8 @@ import { FeatureCard } from "@/components/FeatureCard";
 import { db } from "@/lib/db";
 import { requireProfile } from "@/lib/profile";
 import { NeedForm } from "./NeedForm";
-import { PixForm } from "./PixForm";
+import { InstitutionProfileForm } from "./InstitutionProfileForm";
+import { DonorProfileForm } from "./DonorProfileForm";
 
 export default async function DashboardPage() {
   await auth.protect();
@@ -23,7 +24,9 @@ export default async function DashboardPage() {
     role === "instituicao"
       ? (
           await sql`
-            SELECT id, name, pix_key FROM institutions WHERE clerk_user_id = ${userId}
+            SELECT id, name, cause, city, pix_key, address, hours, story,
+                   instagram, facebook, website
+            FROM institutions WHERE clerk_user_id = ${userId}
           `
         )[0]
       : null;
@@ -33,6 +36,15 @@ export default async function DashboardPage() {
         WHERE institution_id = ${myInstitution.id} ORDER BY id
       `
     : [];
+  const donorProfile =
+    role === "doador"
+      ? (
+          await sql`
+            SELECT description, instagram, facebook, website
+            FROM donor_profiles WHERE clerk_user_id = ${userId}
+          `
+        )[0]
+      : null;
 
   return (
     <section className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-12">
@@ -118,12 +130,6 @@ export default async function DashboardPage() {
             Publicar necessidade — {myInstitution.name}
           </h2>
           <NeedForm />
-          <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-medium text-black/70">
-              Chave Pix para doações em dinheiro
-            </h3>
-            <PixForm initial={myInstitution.pix_key} />
-          </div>
           {myNeeds.length > 0 && (
             <ul className="flex flex-col gap-1 text-sm">
               {myNeeds.map((n) => (
@@ -136,6 +142,34 @@ export default async function DashboardPage() {
           )}
         </div>
       )}
+
+      <div className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-5">
+        <h2 className="font-semibold">Configurações do perfil</h2>
+        {role === "instituicao" && myInstitution ? (
+          <InstitutionProfileForm
+            initial={{
+              cause: myInstitution.cause ?? "",
+              city: myInstitution.city ?? "",
+              address: myInstitution.address ?? "",
+              hours: myInstitution.hours ?? "",
+              story: myInstitution.story ?? "",
+              pixKey: myInstitution.pix_key ?? "",
+              instagram: myInstitution.instagram ?? "",
+              facebook: myInstitution.facebook ?? "",
+              website: myInstitution.website ?? "",
+            }}
+          />
+        ) : (
+          <DonorProfileForm
+            initial={{
+              description: donorProfile?.description ?? "",
+              instagram: donorProfile?.instagram ?? "",
+              facebook: donorProfile?.facebook ?? "",
+              website: donorProfile?.website ?? "",
+            }}
+          />
+        )}
+      </div>
 
       {appConfig.upcomingFeatures.length > 0 && (
         <div className="flex flex-col gap-4">

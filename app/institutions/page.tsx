@@ -79,7 +79,12 @@ export default async function InstitutionsPage({
             className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-white p-5 shadow-sm"
           >
             <div className="flex flex-col gap-1">
-              <h2 className="text-lg font-semibold">{inst.name}</h2>
+              <Link
+                href={`/institutions/${inst.id}`}
+                className="text-lg font-semibold hover:text-accent"
+              >
+                {inst.name}
+              </Link>
               <p className="text-sm text-black/60">
                 {inst.cause} · {inst.city}
               </p>
@@ -100,6 +105,12 @@ export default async function InstitutionsPage({
               {role === "doador" && inst.contactable && (
                 <ChatButton institutionId={inst.id} />
               )}
+              <Link
+                href={`/institutions/${inst.id}#entrega`}
+                className="rounded-full border border-black/15 px-4 py-1.5 text-sm font-medium hover:border-accent/40 hover:text-accent"
+              >
+                Levar ao local
+              </Link>
             </div>
           </article>
         ))}
