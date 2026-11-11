@@ -1,9 +1,16 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #faf9f7;
   --foreground: #171717;
   --accent: #7c3aed;
+}
+
+.dark {
+  --background: #121214;
+  --foreground: #ececec;
 }
 
 @theme inline {
@@ -18,4 +25,23 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Dark-mode surface overrides (kept in one place instead of per-component classes) */
+.dark .bg-white,
+.dark .bg-white\/80 {
+  background-color: #1d1d20;
+}
+.dark .border-black\/10,
+.dark .border-black\/15 {
+  border-color: rgb(255 255 255 / 0.14);
+}
+.dark .text-black\/70,
+.dark .text-black\/60,
+.dark .text-black\/50,
+.dark .text-black\/40 {
+  color: rgb(255 255 255 / 0.62);
+}
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.6);
 }

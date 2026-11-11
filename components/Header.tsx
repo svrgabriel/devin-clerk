@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import { appConfig } from "@/app.config";
+import { LANGS, useLang, useT } from "@/lib/i18n";
 
 const clerkAppearance = {
   variables: {
@@ -62,12 +63,25 @@ function NavMenu({
 
 export function Header() {
   const [unread, setUnread] = useState(0);
+  const [dark, setDark] = useState(false);
+  const { lang, setLang } = useLang();
+  const t = useT();
   useEffect(() => {
+    const isDark = localStorage.getItem("theme") === "dark";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDark(isDark);
+    document.documentElement.classList.toggle("dark", isDark);
     fetch("/api/messages/unread")
       .then((r) => (r.ok ? r.json() : { count: 0 }))
       .then((d) => setUnread(d.count ?? 0))
       .catch(() => {});
   }, []);
+  function toggleDark() {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+  }
   return (
     <header className="border-b border-black/10 bg-white/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
@@ -77,38 +91,65 @@ export function Header() {
         </Link>
         <nav className="flex items-center gap-5 text-sm">
           <NavMenu
-            label="Explorar"
+            label={t("nav.explorar")}
             items={[
-              { href: "/institutions", label: "Instituições" },
-              { href: "/needs", label: "Necessidades" },
-              { href: "/map", label: "Mapa" },
+              { href: "/institutions", label: t("nav.instituicoes") },
+              { href: "/needs", label: t("nav.necessidades") },
+              { href: "/map", label: t("nav.mapa") },
             ]}
           />
           <NavMenu
-            label="Doar"
+            label={t("nav.doar")}
             items={[
-              { href: "/match", label: "Combinar" },
-              { href: "/history", label: "Minhas doações" },
+              { href: "/match", label: t("nav.combinar") },
+              { href: "/history", label: t("nav.minhasDoacoes") },
             ]}
           />
           <NavMenu
-            label="Conta"
+            label={t("nav.conta")}
             items={[
-              { href: "/dashboard", label: "Painel" },
-              { href: "/messages", label: "Mensagens", badge: unread },
+              { href: "/dashboard", label: t("nav.painel") },
+              { href: "/messages", label: t("nav.mensagens"), badge: unread },
             ]}
           />
+          <div className="group relative">
+            <button className="flex items-center gap-1 hover:text-accent" aria-label="Idioma">
+              {LANGS.find((l) => l.code === lang)?.flag}
+            </button>
+            <div className="invisible absolute right-0 top-full z-50 min-w-36 pt-2 opacity-0 transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+              <div className="rounded-xl border border-black/10 bg-white py-2 shadow-lg">
+                {LANGS.map((l) => (
+                  <button
+                    key={l.code}
+                    onClick={() => setLang(l.code)}
+                    className={`flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-accent/10 ${lang === l.code ? "font-semibold text-accent" : ""}`}
+                  >
+                    <span aria-hidden>{l.flag}</span>
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={toggleDark}
+            className="hover:text-accent"
+            aria-label={dark ? "Modo claro" : "Modo escuro"}
+            title={dark ? "Modo claro" : "Modo escuro"}
+          >
+            {dark ? "☀" : "☾"}
+          </button>
           <Suspense>
             <Show when="signed-out">
               <div className="flex items-center gap-3">
                 <SignInButton>
                   <button className="font-medium hover:text-accent">
-                    Entrar
+                    {t("nav.entrar")}
                   </button>
                 </SignInButton>
                 <SignUpButton>
                   <button className="rounded-full bg-accent px-4 py-2 font-medium text-white transition hover:opacity-90">
-                    Cadastrar
+                    {t("nav.cadastrar")}
                   </button>
                 </SignUpButton>
               </div>

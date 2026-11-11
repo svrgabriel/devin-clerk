@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 type Fields = {
   cause: string;
   city: string;
+  cep: string;
   address: string;
   hours: string;
   story: string;
@@ -20,9 +21,33 @@ type Fields = {
 const INPUT =
   "w-full rounded-lg border border-black/15 px-3 py-2 text-sm";
 
+const WEEK_DAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+
+function parseHours(hours: string) {
+  const m = hours.match(/(\d{2}:\d{2})\D+(\d{2}:\d{2})/);
+  const days = WEEK_DAYS.filter((d) => hours.includes(d));
+  return {
+    days: days.length ? days : ["Seg", "Ter", "Qua", "Qui", "Sex"],
+    open: m?.[1] ?? "08:00",
+    close: m?.[2] ?? "17:00",
+  };
+}
+
+function formatHours(days: string[], open: string, close: string) {
+  const idx = days.map((d) => WEEK_DAYS.indexOf(d)).sort((a, b) => a - b);
+  const contiguous =
+    idx.length > 1 && idx.every((v, i) => i === 0 || v === idx[i - 1] + 1);
+  const label =
+    contiguous && idx.length > 2
+      ? `${WEEK_DAYS[idx[0]]}–${WEEK_DAYS[idx[idx.length - 1]]}`
+      : days.join(", ");
+  return `${label}, ${open}–${close}`;
+}
+
 export function InstitutionProfileForm({ initial }: { initial: Fields }) {
   const router = useRouter();
   const [fields, setFields] = useState<Fields>(initial);
+  const [dayPick, setDayPick] = useState(() => parseHours(initial.hours));
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -37,7 +62,10 @@ export function InstitutionProfileForm({ initial }: { initial: Fields }) {
     const res = await fetch("/api/institutions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(fields),
+      body: JSON.stringify({
+        ...fields,
+        hours: formatHours(dayPick.days, dayPick.open, dayPick.close),
+      }),
     });
     if (res.ok) {
       setSaved(true);
@@ -62,16 +90,55 @@ export function InstitutionProfileForm({ initial }: { initial: Fields }) {
       />
       <input
         className={INPUT}
+        placeholder="CEP (ex.: 29010-000)"
+        value={fields.cep}
+        onChange={(e) => set("cep", e.target.value)}
+      />
+      <input
+        className={INPUT}
         placeholder="Endereço completo"
         value={fields.address}
         onChange={(e) => set("address", e.target.value)}
       />
-      <input
-        className={INPUT}
-        placeholder="Horário e dias (ex.: Seg–Sex, 9h–17h)"
-        value={fields.hours}
-        onChange={(e) => set("hours", e.target.value)}
-      />
+      <div className="flex flex-col gap-2 rounded-lg border border-black/15 px-3 py-2 text-sm sm:col-span-2">
+        <span className="text-black/60">Dias e horário de funcionamento</span>
+        <div className="flex flex-wrap gap-2">
+          {WEEK_DAYS.map((d) => (
+            <label key={d} className="flex items-center gap-1">
+              <input
+                type="checkbox"
+                className="h-3.5 w-3.5 accent-accent"
+                checked={dayPick.days.includes(d)}
+                onChange={(e) =>
+                  setDayPick((p) => ({
+                    ...p,
+                    days: e.target.checked
+                      ? [...p.days, d]
+                      : p.days.filter((x) => x !== d),
+                  }))
+                }
+              />
+              {d}
+            </label>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-black/60">Abre</span>
+          <input
+            type="time"
+            className={INPUT.replace("w-full", "w-auto")}
+            value={dayPick.open}
+            onChange={(e) => setDayPick((p) => ({ ...p, open: e.target.value }))}
+          />
+          <span className="text-black/60">Fecha</span>
+          <input
+            type="time"
+            className={INPUT.replace("w-full", "w-auto")}
+            value={dayPick.close}
+            onChange={(e) => setDayPick((p) => ({ ...p, close: e.target.value }))}
+          />
+        </div>
+      </div>
       <input
         className={INPUT}
         placeholder="Chave Pix"
