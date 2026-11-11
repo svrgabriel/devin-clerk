@@ -32,8 +32,10 @@ body {
 .dark .bg-white\/80 {
   background-color: #1d1d20;
 }
+.dark .border-black\/5,
 .dark .border-black\/10,
-.dark .border-black\/15 {
+.dark .border-black\/15,
+.dark .border-black\/20 {
   border-color: rgb(255 255 255 / 0.14);
 }
 .dark .text-black\/80,
@@ -42,6 +44,9 @@ body {
 .dark .text-black\/50,
 .dark .text-black\/40 {
   color: rgb(255 255 255 / 0.62);
+}
+.dark .bg-black\/5 {
+  background-color: rgb(255 255 255 / 0.08);
 }
 .dark .shadow-lg {
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.6);
