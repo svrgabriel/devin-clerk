@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireProfile } from "@/lib/profile";
 import { ChatButton } from "./ChatButton";
@@ -27,6 +28,7 @@ export default async function NeedsPage() {
   const rows = await sql`
     SELECT i.id AS institution_id, i.name, i.cause, i.city,
            i.clerk_user_id IS NOT NULL AS contactable,
+           (i.address IS NOT NULL OR i.hours IS NOT NULL) AS has_dropoff,
            n.item, n.priority
     FROM institutions i
     LEFT JOIN needs n ON n.institution_id = i.id
@@ -35,7 +37,7 @@ export default async function NeedsPage() {
 
   const institutions = new Map<
     number,
-    { name: string; cause: string; city: string; contactable: boolean; needs: { item: string; priority: string }[] }
+    { name: string; cause: string; city: string; contactable: boolean; hasDropoff: boolean; needs: { item: string; priority: string }[] }
   >();
   for (const row of rows) {
     if (!institutions.has(row.institution_id)) {
@@ -44,6 +46,7 @@ export default async function NeedsPage() {
         cause: row.cause,
         city: row.city,
         contactable: row.contactable,
+        hasDropoff: row.has_dropoff,
         needs: [],
       });
     }
@@ -75,15 +78,30 @@ export default async function NeedsPage() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex flex-col gap-1">
-                  <h2 className="text-lg font-semibold">{institution.name}</h2>
+                  <Link
+                    href={`/institutions/${id}`}
+                    className="text-lg font-semibold hover:text-accent"
+                  >
+                    {institution.name}
+                  </Link>
                   <p className="text-sm text-black/60">
                     {institution.cause}
                     {institution.city ? ` · ${institution.city}` : ""}
                   </p>
                 </div>
-                {role === "doador" && institution.contactable && (
-                  <ChatButton institutionId={id} />
-                )}
+                <div className="flex flex-col items-end gap-2">
+                  {role === "doador" && institution.contactable && (
+                    <ChatButton institutionId={id} />
+                  )}
+                  {institution.hasDropoff && (
+                    <Link
+                      href={`/institutions/${id}#entrega`}
+                      className="rounded-full border border-black/15 px-3 py-1 text-xs font-medium hover:border-accent/40 hover:text-accent"
+                    >
+                      Levar ao local
+                    </Link>
+                  )}
+                </div>
               </div>
               <ul className="flex flex-col gap-2">
                 {needs.map((need) => (

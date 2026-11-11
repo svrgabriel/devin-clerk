@@ -12,9 +12,22 @@ async function init() {
       name TEXT NOT NULL,
       cause TEXT NOT NULL,
       city TEXT NOT NULL,
-      cnpj TEXT
+      cnpj TEXT,
+      pix_key TEXT,
+      lat DOUBLE PRECISION,
+      lng DOUBLE PRECISION
     )
   `;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS pix_key TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS address TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS hours TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS story TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS instagram TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS facebook TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS website TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS photos TEXT`;
   await sql`
     DELETE FROM institutions a
     USING institutions b
@@ -52,14 +65,45 @@ async function init() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS donor_profiles (
+      clerk_user_id TEXT PRIMARY KEY,
+      description TEXT,
+      instagram TEXT,
+      facebook TEXT,
+      website TEXT,
+      photo_url TEXT
+    )
+  `;
+  await sql`ALTER TABLE donor_profiles ADD COLUMN IF NOT EXISTS photo_url TEXT`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS donations (
+      id SERIAL PRIMARY KEY,
+      donor_user_id TEXT NOT NULL,
+      institution_id INT REFERENCES institutions(id) ON DELETE CASCADE,
+      amount_cents INT NOT NULL CHECK (amount_cents > 0),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
   // Seed demo institutions once so the feed has content.
+  const { appConfig } = await import("@/app.config");
+  for (const inst of appConfig.institutions) {
+    await sql`
+      UPDATE institutions
+      SET lat = COALESCE(lat, ${inst.lat ?? null}),
+          lng = COALESCE(lng, ${inst.lng ?? null}),
+          pix_key = COALESCE(pix_key, ${inst.pixKey ?? null}),
+          address = COALESCE(address, ${inst.address ?? null}),
+          hours = COALESCE(hours, ${inst.hours ?? null})
+      WHERE name = ${inst.name} AND clerk_user_id IS NULL
+    `;
+  }
   const [{ count }] = await sql`SELECT count(*)::int FROM institutions`;
   if (count === 0) {
-    const { appConfig } = await import("@/app.config");
     for (const inst of appConfig.institutions) {
       const [row] = await sql`
-        INSERT INTO institutions (name, cause, city)
-        VALUES (${inst.name}, ${inst.cause}, ${inst.city})
+        INSERT INTO institutions (name, cause, city, pix_key, address, hours, lat, lng)
+        VALUES (${inst.name}, ${inst.cause}, ${inst.city}, ${inst.pixKey ?? null}, ${inst.address ?? null}, ${inst.hours ?? null}, ${inst.lat ?? null}, ${inst.lng ?? null})
         RETURNING id
       `;
       for (const need of inst.needs) {

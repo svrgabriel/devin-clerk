@@ -9,6 +9,11 @@ export type Institution = {
   name: string;
   cause: string;
   city: string;
+  pixKey?: string;
+  address?: string;
+  hours?: string;
+  lat?: number;
+  lng?: number;
   needs: { item: string; priority: NeedPriority }[];
 };
 
@@ -23,6 +28,11 @@ export const appConfig = {
       name: "Casa do Caminho",
       cause: "Abrigo infantil",
       city: "Vila Velha",
+      pixKey: "doacoes@casadocaminho.org",
+      address: "R. das Acácias, 120 — Praia de Itaparica, Vila Velha/ES",
+      hours: "Seg–Sex, 8h–17h; Sáb, 8h–12h",
+      lat: -20.3417,
+      lng: -40.2913,
       needs: [
         { item: "Fraldas geriátricas e infantis", priority: "urgente" },
         { item: "Leite em pó", priority: "alta" },
@@ -33,6 +43,11 @@ export const appConfig = {
       name: "Banco de Alimentos ES",
       cause: "Segurança alimentar",
       city: "Vitória",
+      pixKey: "pix@bancodealimentoses.org",
+      address: "Av. Leitão da Silva, 500 — Centro, Vitória/ES",
+      hours: "Seg–Sex, 9h–18h",
+      lat: -20.3155,
+      lng: -40.3128,
       needs: [
         { item: "Arroz e feijão", priority: "urgente" },
         { item: "Óleo de cozinha", priority: "alta" },
@@ -43,6 +58,11 @@ export const appConfig = {
       name: "Amigos dos Animais UVV",
       cause: "Proteção animal",
       city: "Vila Velha",
+      pixKey: "pix@amigosdosanimais.org",
+      address: "R. Prof. Vamoré, 45 — Glória, Vila Velha/ES",
+      hours: "Todos os dias, 8h–20h",
+      lat: -20.3539,
+      lng: -40.2967,
       needs: [
         { item: "Ração para cães e gatos", priority: "urgente" },
         { item: "Medicamentos veterinários", priority: "alta" },
@@ -53,6 +73,11 @@ export const appConfig = {
       name: "Lar São Vicente",
       cause: "Acolhimento de idosos",
       city: "Cariacica",
+      pixKey: "pix@larsaovicente.org",
+      address: "R. Expedito Garcia, 210 — Campo Grande, Cariacica/ES",
+      hours: "Seg–Sáb, 9h–17h",
+      lat: -20.2632,
+      lng: -40.4198,
       needs: [
         { item: "Fraldas geriátricas", priority: "alta" },
         { item: "Suplementos nutricionais", priority: "alta" },
@@ -60,31 +85,5 @@ export const appConfig = {
       ],
     },
   ] satisfies Institution[],
-  upcomingFeatures: [
-    {
-      title: "Catálogo de instituições",
-      description:
-        "Navegue por instituições verificadas por causa e cidade para encontrar onde sua doação ajuda mais.",
-    },
-    {
-      title: "Mapa de coleta",
-      description:
-        "Veja pontos de coleta e campanhas ativas perto de você em um mapa interativo.",
-    },
-    {
-      title: "Doações em dinheiro",
-      description:
-        "Doe diretamente para as instituições com pagamentos online seguros.",
-    },
-    {
-      title: "Combinação de doações",
-      description:
-        "Diga o que você quer doar e sugerimos as instituições que mais precisam.",
-    },
-    {
-      title: "Histórico de doações",
-      description:
-        "Acompanhe suas doações anteriores e o impacto que elas geraram.",
-    },
-  ] satisfies Feature[],
+  upcomingFeatures: [] as Feature[],
 };
