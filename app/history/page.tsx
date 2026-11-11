@@ -8,6 +8,7 @@ const fmt = new Intl.NumberFormat("pt-BR", {
 const dateFmt = new Intl.DateTimeFormat("pt-BR", {
   dateStyle: "medium",
   timeStyle: "short",
+  timeZone: "America/Sao_Paulo",
 });
 
 export default async function HistoryPage() {
@@ -38,7 +39,11 @@ export default async function HistoryPage() {
           ORDER BY d.created_at DESC
         `;
 
-  const total = donations.reduce((acc, d) => acc + (d.amount_cents ?? 0), 0);
+  const moneyTotal = donations.reduce(
+    (acc, d) => acc + (d.amount_cents ?? 0),
+    0,
+  );
+  const hasMoney = donations.some((d) => d.amount_cents != null);
 
   return (
     <section className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-12">
@@ -48,7 +53,7 @@ export default async function HistoryPage() {
         </h1>
         <p className="text-lg text-black/70">
           {donations.length > 0
-            ? `${donations.length} doaç${donations.length === 1 ? "ão registrada" : "ões registradas"} · total ${fmt.format(total / 100)}`
+            ? `${donations.length} doaç${donations.length === 1 ? "ão registrada" : "ões registradas"}${hasMoney ? ` · total ${fmt.format(moneyTotal / 100)}` : ""}`
             : "Nenhuma doação registrada ainda."}
         </p>
       </div>
@@ -56,7 +61,7 @@ export default async function HistoryPage() {
       <ul className="flex flex-col gap-3">
         {donations.map((d) => (
           <li
-            key={d.id}
+            key={`${d.kind}-${d.id}`}
             className="flex items-center justify-between gap-4 rounded-2xl border border-black/10 bg-white px-5 py-4 shadow-sm"
           >
             <div className="flex flex-col">
