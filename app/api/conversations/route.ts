@@ -27,10 +27,11 @@ export async function POST(req: Request) {
   const [institution] = await sql`
     SELECT id FROM institutions
     WHERE id = ${institution_id} AND clerk_user_id IS NOT NULL
+      AND accepts_messages
   `;
   if (!institution) {
     return Response.json(
-      { error: "Instituição não encontrada" },
+      { error: "Instituição não encontrada ou não aceita mensagens" },
       { status: 404 },
     );
   }

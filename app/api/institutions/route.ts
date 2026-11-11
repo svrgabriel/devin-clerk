@@ -38,7 +38,16 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const updates: Record<string, string | null> = {};
+  const updates: Record<string, string | boolean | null> = {};
+  if (body.acceptsMessages !== undefined) {
+    if (typeof body.acceptsMessages !== "boolean") {
+      return Response.json(
+        { error: "Campo acceptsMessages inválido." },
+        { status: 400 },
+      );
+    }
+    updates.accepts_messages = body.acceptsMessages;
+  }
   for (const field of FIELDS) {
     const value = body[field];
     if (value !== undefined) {

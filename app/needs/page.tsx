@@ -27,7 +27,7 @@ export default async function NeedsPage() {
 
   const rows = await sql`
     SELECT i.id AS institution_id, i.name, i.cause, i.city,
-           i.clerk_user_id IS NOT NULL AS contactable,
+           i.clerk_user_id IS NOT NULL AND i.accepts_messages AS contactable,
            (i.address IS NOT NULL OR i.hours IS NOT NULL) AS has_dropoff,
            n.item, n.priority
     FROM institutions i

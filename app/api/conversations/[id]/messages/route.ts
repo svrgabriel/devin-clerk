@@ -35,11 +35,18 @@ export async function GET(
     return Response.json({ error: "Not found" }, { status: 404 });
   }
 
+  const convId = Number(id);
   const messages = await sql`
     SELECT id, sender_user_id, body, created_at
     FROM messages
-    WHERE conversation_id = ${Number(id)}
+    WHERE conversation_id = ${convId}
     ORDER BY created_at ASC
+  `;
+  await sql`
+    UPDATE conversations SET
+      donor_last_read_at = CASE WHEN donor_user_id = ${userId} THEN now() ELSE donor_last_read_at END,
+      inst_last_read_at = CASE WHEN donor_user_id <> ${userId} THEN now() ELSE inst_last_read_at END
+    WHERE id = ${convId}
   `;
   return Response.json({ messages });
 }
