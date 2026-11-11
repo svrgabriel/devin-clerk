@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { requireProfile } from "@/lib/profile";
 import { donorCode, donorIdNormSql, normalizeDonorId } from "@/lib/donor";
 
 export default async function DonorProfilePage({
@@ -9,7 +8,6 @@ export default async function DonorProfilePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireProfile();
   const { id } = await params;
   const norm = normalizeDonorId(id);
   if (!norm) notFound();
