@@ -94,14 +94,26 @@ export default async function MatchPage({
               className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-white p-5 shadow-sm"
             >
               <div className="flex flex-col gap-1">
-                <h2 className="text-lg font-semibold">{inst.name}</h2>
+                <h2 className="text-lg font-semibold">
+                  <Link
+                    href={`/institutions/${id}`}
+                    className="hover:text-accent hover:underline"
+                  >
+                    {inst.name}
+                  </Link>
+                </h2>
                 <p className="text-sm text-black/60">
                   {inst.cause} · {inst.city}
                 </p>
                 <ul className="text-sm">
                   {inst.needs.map((n) => (
                     <li key={n.item}>
-                      {n.item}{" "}
+                      <Link
+                        href={`/institutions?cause=${encodeURIComponent(inst.cause)}`}
+                        className="hover:text-accent hover:underline"
+                      >
+                        {n.item}
+                      </Link>{" "}
                       <span className="text-black/50">({n.priority})</span>
                     </li>
                   ))}
