@@ -5,6 +5,7 @@ import { FeatureCard } from "@/components/FeatureCard";
 import { db } from "@/lib/db";
 import { requireProfile } from "@/lib/profile";
 import { NeedForm } from "./NeedForm";
+import { NeedList } from "./NeedList";
 import { InstitutionProfileForm } from "./InstitutionProfileForm";
 import { DonorProfileForm } from "./DonorProfileForm";
 import { CopyId, InPersonForm } from "./InPersonForm";
@@ -34,7 +35,7 @@ export default async function DashboardPage() {
       : null;
   const myNeeds = myInstitution
     ? await sql`
-        SELECT item, priority FROM needs
+        SELECT id, item, priority FROM needs
         WHERE institution_id = ${myInstitution.id} ORDER BY id
       `
     : [];
@@ -157,14 +158,7 @@ export default async function DashboardPage() {
           </h2>
           <NeedForm />
           {myNeeds.length > 0 && (
-            <ul className="flex flex-col gap-1 text-sm">
-              {myNeeds.map((n) => (
-                <li key={n.item}>
-                  <span className="font-medium">{n.item}</span>{" "}
-                  <span className="text-black/50">({n.priority})</span>
-                </li>
-              ))}
-            </ul>
+            <NeedList needs={myNeeds as { id: number; item: string; priority: string }[]} />
           )}
         </div>
       )}

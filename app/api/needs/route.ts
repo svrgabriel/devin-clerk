@@ -31,6 +31,16 @@ export async function POST(req: Request) {
     );
   }
 
+  const [{ count }] = await sql`
+    SELECT count(*)::int AS count FROM needs WHERE institution_id = ${institution.id}
+  `;
+  if (count >= 50) {
+    return Response.json(
+      { error: "Limite de 50 necessidades atingido." },
+      { status: 409 },
+    );
+  }
+
   const [need] = await sql`
     INSERT INTO needs (institution_id, item, priority)
     VALUES (${institution.id}, ${item!.trim()}, ${priority!})
