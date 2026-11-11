@@ -12,9 +12,15 @@ async function init() {
       name TEXT NOT NULL,
       cause TEXT NOT NULL,
       city TEXT NOT NULL,
-      cnpj TEXT
+      cnpj TEXT,
+      pix_key TEXT,
+      lat DOUBLE PRECISION,
+      lng DOUBLE PRECISION
     )
   `;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS pix_key TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION`;
   await sql`
     DELETE FROM institutions a
     USING institutions b
@@ -52,14 +58,31 @@ async function init() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS donations (
+      id SERIAL PRIMARY KEY,
+      donor_user_id TEXT NOT NULL,
+      institution_id INT REFERENCES institutions(id) ON DELETE CASCADE,
+      amount_cents INT NOT NULL CHECK (amount_cents > 0),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
   // Seed demo institutions once so the feed has content.
+  const { appConfig } = await import("@/app.config");
+  for (const inst of appConfig.institutions) {
+    if (inst.lat != null && inst.lng != null) {
+      await sql`
+        UPDATE institutions SET lat = ${inst.lat}, lng = ${inst.lng}
+        WHERE name = ${inst.name} AND lat IS NULL
+      `;
+    }
+  }
   const [{ count }] = await sql`SELECT count(*)::int FROM institutions`;
   if (count === 0) {
-    const { appConfig } = await import("@/app.config");
     for (const inst of appConfig.institutions) {
       const [row] = await sql`
-        INSERT INTO institutions (name, cause, city)
-        VALUES (${inst.name}, ${inst.cause}, ${inst.city})
+        INSERT INTO institutions (name, cause, city, pix_key, lat, lng)
+        VALUES (${inst.name}, ${inst.cause}, ${inst.city}, ${inst.pixKey ?? null}, ${inst.lat ?? null}, ${inst.lng ?? null})
         RETURNING id
       `;
       for (const need of inst.needs) {

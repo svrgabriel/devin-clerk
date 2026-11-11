@@ -17,12 +17,24 @@ export function Header() {
           <span aria-hidden>{appConfig.emoji}</span>
           {appConfig.name}
         </Link>
-        <nav className="flex items-center gap-6 text-sm">
+        <nav className="flex items-center gap-4 text-sm">
+          <Link href="/institutions" className="hover:text-accent">
+            Instituições
+          </Link>
           <Link href="/needs" className="hover:text-accent">
             Necessidades
           </Link>
+          <Link href="/map" className="hover:text-accent">
+            Mapa
+          </Link>
+          <Link href="/match" className="hover:text-accent">
+            Combinar
+          </Link>
           <Link href="/messages" className="hover:text-accent">
             Mensagens
+          </Link>
+          <Link href="/history" className="hover:text-accent">
+            Doações
           </Link>
           <Link href="/dashboard" className="hover:text-accent">
             Painel
