@@ -9,6 +9,49 @@ const clerkAppearance = {
   },
 };
 
+function NavMenu({
+  label,
+  items,
+}: {
+  label: string;
+  items: { href: string; label: string }[];
+}) {
+  return (
+    <div className="group relative">
+      <button className="flex items-center gap-1 hover:text-accent">
+        {label}
+        <svg
+          className="h-3 w-3 transition-transform group-hover:rotate-180"
+          viewBox="0 0 10 6"
+          fill="none"
+          aria-hidden
+        >
+          <path
+            d="M1 1l4 4 4-4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      <div className="invisible absolute left-0 top-full z-50 min-w-44 pt-2 opacity-0 transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+        <div className="rounded-xl border border-black/10 bg-white py-2 shadow-lg">
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="block px-4 py-2 hover:bg-accent/10 hover:text-accent"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Header() {
   return (
     <header className="border-b border-black/10 bg-white/80 backdrop-blur">
@@ -17,28 +60,29 @@ export function Header() {
           <span aria-hidden>{appConfig.emoji}</span>
           {appConfig.name}
         </Link>
-        <nav className="flex items-center gap-4 text-sm">
-          <Link href="/institutions" className="hover:text-accent">
-            Instituições
-          </Link>
-          <Link href="/needs" className="hover:text-accent">
-            Necessidades
-          </Link>
-          <Link href="/map" className="hover:text-accent">
-            Mapa
-          </Link>
-          <Link href="/match" className="hover:text-accent">
-            Combinar
-          </Link>
-          <Link href="/messages" className="hover:text-accent">
-            Mensagens
-          </Link>
-          <Link href="/history" className="hover:text-accent">
-            Doações
-          </Link>
-          <Link href="/dashboard" className="hover:text-accent">
-            Painel
-          </Link>
+        <nav className="flex items-center gap-5 text-sm">
+          <NavMenu
+            label="Explorar"
+            items={[
+              { href: "/institutions", label: "Instituições" },
+              { href: "/needs", label: "Necessidades" },
+              { href: "/map", label: "Mapa" },
+            ]}
+          />
+          <NavMenu
+            label="Doar"
+            items={[
+              { href: "/match", label: "Combinar" },
+              { href: "/history", label: "Minhas doações" },
+            ]}
+          />
+          <NavMenu
+            label="Conta"
+            items={[
+              { href: "/dashboard", label: "Painel" },
+              { href: "/messages", label: "Mensagens" },
+            ]}
+          />
           <Suspense>
             <Show when="signed-out">
               <div className="flex items-center gap-3">
