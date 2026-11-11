@@ -3,6 +3,7 @@ import { apiProfile } from "@/lib/profile";
 
 const FIELDS = [
   "pixKey",
+  "cep",
   "address",
   "hours",
   "story",
@@ -16,6 +17,7 @@ const FIELDS = [
 
 const COLUMN: Record<(typeof FIELDS)[number], string> = {
   pixKey: "pix_key",
+  cep: "cep",
   address: "address",
   hours: "hours",
   story: "story",
