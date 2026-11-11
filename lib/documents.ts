@@ -21,7 +21,7 @@ export function isValidCNPJ(value: string) {
   if (d.length !== 14 || /^(\d)\1{13}$/.test(d)) return false;
   const weights = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
   for (const len of [12, 13]) {
-    const w = weights.slice(13 - len - 1);
+    const w = weights.slice(13 - len);
     const sum = [...d.slice(0, len)].reduce(
       (acc, digit, i) => acc + Number(digit) * w[i],
       0,

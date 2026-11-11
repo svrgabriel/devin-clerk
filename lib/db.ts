@@ -16,6 +16,13 @@ async function init() {
     )
   `;
   await sql`
+    DELETE FROM institutions a
+    USING institutions b
+    WHERE a.clerk_user_id = b.clerk_user_id
+      AND a.clerk_user_id IS NOT NULL
+      AND a.id > b.id
+  `;
+  await sql`
     CREATE UNIQUE INDEX IF NOT EXISTS institutions_owner_key
     ON institutions (clerk_user_id) WHERE clerk_user_id IS NOT NULL
   `;
