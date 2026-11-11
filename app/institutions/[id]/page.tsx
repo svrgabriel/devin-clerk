@@ -54,6 +54,14 @@ export default async function InstitutionProfilePage({
           {institution.city ? ` · ${institution.city}` : ""}
           {institution.cnpj ? ` · CNPJ ${institution.cnpj}` : ""}
         </p>
+        {institution.pix_key && (
+          <p className="text-sm text-black/60">
+            Chave Pix:{" "}
+            <code className="rounded bg-black/5 px-2 py-0.5 font-mono">
+              {institution.pix_key}
+            </code>
+          </p>
+        )}
       </div>
 
       {photos.length > 0 && (
