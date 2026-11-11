@@ -1,0 +1,35 @@
+import { db } from "@/lib/db";
+import { requireProfile } from "@/lib/profile";
+
+export async function POST(req: Request) {
+  const { userId, role } = await requireProfile();
+  if (role !== "doador") {
+    return Response.json(
+      { error: "Apenas doadores iniciam conversas." },
+      { status: 403 },
+    );
+  }
+
+  const { institution_id } = (await req.json()) as { institution_id?: number };
+  if (!institution_id) {
+    return Response.json({ error: "institution_id obrigatório" }, { status: 400 });
+  }
+
+  const sql = db();
+  const [institution] = await sql`
+    SELECT id FROM institutions WHERE id = ${institution_id}
+  `;
+  if (!institution) {
+    return Response.json({ error: "Instituição não encontrada" }, { status: 404 });
+  }
+
+  const [conversation] = await sql`
+    INSERT INTO conversations (donor_user_id, institution_id)
+    VALUES (${userId}, ${institution_id})
+    ON CONFLICT (donor_user_id, institution_id) DO UPDATE
+      SET donor_user_id = EXCLUDED.donor_user_id
+    RETURNING id
+  `;
+
+  return Response.json({ id: conversation.id });
+}

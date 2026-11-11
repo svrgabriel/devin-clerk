@@ -1,26 +1,57 @@
-import { auth } from "@clerk/nextjs/server";
-import { appConfig, type NeedPriority } from "@/app.config";
+import { db } from "@/lib/db";
+import { requireProfile } from "@/lib/profile";
+import { ChatButton } from "./ChatButton";
 
-const priorityOrder: Record<NeedPriority, number> = {
+const priorityOrder: Record<string, number> = {
   urgente: 0,
   alta: 1,
   normal: 2,
 };
 
-const priorityStyles: Record<NeedPriority, string> = {
+const priorityStyles: Record<string, string> = {
   urgente: "bg-red-100 text-red-800 border-red-200",
   alta: "bg-amber-100 text-amber-800 border-amber-200",
   normal: "bg-accent/10 text-accent border-accent/20",
 };
 
-const priorityLabels: Record<NeedPriority, string> = {
+const priorityLabels: Record<string, string> = {
   urgente: "Urgente",
   alta: "Alta",
   normal: "Normal",
 };
 
 export default async function NeedsPage() {
-  await auth.protect();
+  const { role } = await requireProfile();
+  const sql = db();
+
+  const rows = await sql`
+    SELECT i.id AS institution_id, i.name, i.cause, i.city,
+           n.item, n.priority
+    FROM institutions i
+    LEFT JOIN needs n ON n.institution_id = i.id
+    ORDER BY i.name, n.id
+  `;
+
+  const institutions = new Map<
+    number,
+    { name: string; cause: string; city: string; needs: { item: string; priority: string }[] }
+  >();
+  for (const row of rows) {
+    if (!institutions.has(row.institution_id)) {
+      institutions.set(row.institution_id, {
+        name: row.name,
+        cause: row.cause,
+        city: row.city,
+        needs: [],
+      });
+    }
+    if (row.item) {
+      institutions.get(row.institution_id)!.needs.push({
+        item: row.item,
+        priority: row.priority,
+      });
+    }
+  }
 
   return (
     <section className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-12">
@@ -31,20 +62,24 @@ export default async function NeedsPage() {
         </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        {appConfig.institutions.map((institution) => {
+        {[...institutions.entries()].map(([id, institution]) => {
           const needs = [...institution.needs].sort(
-            (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority],
+            (a, b) => (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3),
           );
           return (
             <article
-              key={institution.name}
+              key={id}
               className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-5 shadow-sm"
             >
-              <div className="flex flex-col gap-1">
-                <h2 className="text-lg font-semibold">{institution.name}</h2>
-                <p className="text-sm text-black/60">
-                  {institution.cause} · {institution.city}
-                </p>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-1">
+                  <h2 className="text-lg font-semibold">{institution.name}</h2>
+                  <p className="text-sm text-black/60">
+                    {institution.cause}
+                    {institution.city ? ` · ${institution.city}` : ""}
+                  </p>
+                </div>
+                {role === "doador" && <ChatButton institutionId={id} />}
               </div>
               <ul className="flex flex-col gap-2">
                 {needs.map((need) => (
@@ -54,12 +89,17 @@ export default async function NeedsPage() {
                   >
                     <span>{need.item}</span>
                     <span
-                      className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${priorityStyles[need.priority]}`}
+                      className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${priorityStyles[need.priority] ?? ""}`}
                     >
-                      {priorityLabels[need.priority]}
+                      {priorityLabels[need.priority] ?? need.priority}
                     </span>
                   </li>
                 ))}
+                {needs.length === 0 && (
+                  <li className="text-sm text-black/50">
+                    Nenhuma necessidade publicada ainda.
+                  </li>
+                )}
               </ul>
             </article>
           );

@@ -21,6 +21,9 @@ export function Header() {
           <Link href="/needs" className="hover:text-accent">
             Necessidades
           </Link>
+          <Link href="/messages" className="hover:text-accent">
+            Mensagens
+          </Link>
           <Link href="/dashboard" className="hover:text-accent">
             Painel
           </Link>
