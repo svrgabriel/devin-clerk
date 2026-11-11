@@ -1,10 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
+import { digitsOnly, isValidCNPJ, isValidCPF } from "@/lib/documents";
 import { setRoleMetadata, type Role } from "@/lib/profile";
-
-function digitsOnly(value: string) {
-  return value.replace(/\D/g, "");
-}
 
 export async function POST(req: Request) {
   const { isAuthenticated, userId } = await auth();
@@ -19,21 +16,21 @@ export async function POST(req: Request) {
   };
 
   if (role !== "doador" && role !== "instituicao") {
-    return Response.json({ error: "Escolha um perfil válido." }, { status: 400 });
-  }
-  if (!document) {
     return Response.json(
-      { error: "Informe o documento." },
+      { error: "Escolha um perfil válido." },
       { status: 400 },
     );
   }
+  if (!document) {
+    return Response.json({ error: "Informe o documento." }, { status: 400 });
+  }
 
   const digits = digitsOnly(document);
-  if (role === "doador" && digits.length !== 11) {
+  if (role === "doador" && !isValidCPF(digits)) {
     return Response.json({ error: "CPF inválido." }, { status: 400 });
   }
   if (role === "instituicao") {
-    if (digits.length !== 14) {
+    if (!isValidCNPJ(digits)) {
       return Response.json({ error: "CNPJ inválido." }, { status: 400 });
     }
     if (!orgName?.trim()) {
@@ -44,12 +41,13 @@ export async function POST(req: Request) {
     }
   }
 
-  const sql = db();
+  const sql = await db();
   if (role === "instituicao") {
     await sql`
       INSERT INTO institutions (clerk_user_id, name, cause, city, cnpj)
       VALUES (${userId}, ${orgName!.trim()}, 'Instituição beneficente', '', ${digits})
-      ON CONFLICT DO NOTHING
+      ON CONFLICT (clerk_user_id) WHERE clerk_user_id IS NOT NULL
+      DO UPDATE SET name = EXCLUDED.name, cnpj = EXCLUDED.cnpj
     `;
   }
   await setRoleMetadata(userId, role);

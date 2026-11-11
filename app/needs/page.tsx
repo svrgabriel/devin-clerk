@@ -22,10 +22,11 @@ const priorityLabels: Record<string, string> = {
 
 export default async function NeedsPage() {
   const { role } = await requireProfile();
-  const sql = db();
+  const sql = await db();
 
   const rows = await sql`
     SELECT i.id AS institution_id, i.name, i.cause, i.city,
+           i.clerk_user_id IS NOT NULL AS contactable,
            n.item, n.priority
     FROM institutions i
     LEFT JOIN needs n ON n.institution_id = i.id
@@ -34,7 +35,7 @@ export default async function NeedsPage() {
 
   const institutions = new Map<
     number,
-    { name: string; cause: string; city: string; needs: { item: string; priority: string }[] }
+    { name: string; cause: string; city: string; contactable: boolean; needs: { item: string; priority: string }[] }
   >();
   for (const row of rows) {
     if (!institutions.has(row.institution_id)) {
@@ -42,6 +43,7 @@ export default async function NeedsPage() {
         name: row.name,
         cause: row.cause,
         city: row.city,
+        contactable: row.contactable,
         needs: [],
       });
     }
@@ -79,7 +81,9 @@ export default async function NeedsPage() {
                     {institution.city ? ` · ${institution.city}` : ""}
                   </p>
                 </div>
-                {role === "doador" && <ChatButton institutionId={id} />}
+                {role === "doador" && institution.contactable && (
+                  <ChatButton institutionId={id} />
+                )}
               </div>
               <ul className="flex flex-col gap-2">
                 {needs.map((need) => (

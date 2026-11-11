@@ -4,7 +4,7 @@ import { requireProfile } from "@/lib/profile";
 
 export default async function MessagesPage() {
   const { userId, role } = await requireProfile();
-  const sql = db();
+  const sql = await db();
 
   const conversations =
     role === "doador"

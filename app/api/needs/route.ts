@@ -1,8 +1,10 @@
 import { db } from "@/lib/db";
-import { requireProfile } from "@/lib/profile";
+import { apiProfile } from "@/lib/profile";
 
 export async function POST(req: Request) {
-  const { userId, role } = await requireProfile();
+  const result = await apiProfile();
+  if (result instanceof Response) return result;
+  const { userId, role } = result;
   if (role !== "instituicao") {
     return Response.json(
       { error: "Apenas instituições publicam necessidades." },
@@ -18,7 +20,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "Dados inválidos" }, { status: 400 });
   }
 
-  const sql = db();
+  const sql = await db();
   const [institution] = await sql`
     SELECT id FROM institutions WHERE clerk_user_id = ${userId}
   `;
