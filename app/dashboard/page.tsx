@@ -8,6 +8,7 @@ import { NeedForm } from "./NeedForm";
 import { InstitutionProfileForm } from "./InstitutionProfileForm";
 import { DonorProfileForm } from "./DonorProfileForm";
 import { CopyId, InPersonForm } from "./InPersonForm";
+import { donorCode } from "@/lib/donor";
 
 export default async function DashboardPage() {
   await auth.protect();
@@ -48,7 +49,7 @@ export default async function DashboardPage() {
       : null;
   const receivedDonations = myInstitution
     ? await sql`
-        SELECT donor_name, amount_cents, method, created_at
+        SELECT donor_name, donor_user_id, amount_cents, method, created_at
         FROM donations WHERE institution_id = ${myInstitution.id}
         ORDER BY created_at DESC
       `
@@ -176,7 +177,7 @@ export default async function DashboardPage() {
           </p>
           <div className="flex items-center gap-2 text-sm">
             <span className="text-black/50">Seu ID:</span>
-            <CopyId id={userId} />
+            <CopyId id={donorCode(userId)} />
           </div>
         </div>
       )}
@@ -199,7 +200,14 @@ export default async function DashboardPage() {
               <tbody>
                 {receivedDonations.map((d, i) => (
                   <tr key={i} className="border-t border-black/5">
-                    <td className="py-2 pr-3">{d.donor_name ?? "Doador"}</td>
+                    <td className="py-2 pr-3">
+                      <Link
+                        href={`/donors/${encodeURIComponent(d.donor_user_id ?? "")}`}
+                        className="hover:text-accent hover:underline"
+                      >
+                        {d.donor_name ?? "Doador"}
+                      </Link>
+                    </td>
                     <td className="py-2 pr-3">
                       {new Date(d.created_at).toLocaleString("pt-BR")}
                     </td>
@@ -223,7 +231,13 @@ export default async function DashboardPage() {
             <ul className="flex flex-col gap-1 text-sm">
               {inPersonDonations.map((d, i) => (
                 <li key={i}>
-                  <span className="font-medium">{d.item}</span> — {d.donor_name}{" "}
+                  <span className="font-medium">{d.item}</span> —{" "}
+                  <Link
+                    href={`/donors/${encodeURIComponent(d.donor_user_id)}`}
+                    className="hover:text-accent hover:underline"
+                  >
+                    {d.donor_name}
+                  </Link>{" "}
                   <span className="font-mono text-xs text-black/50">
                     ({d.donor_user_id})
                   </span>{" "}

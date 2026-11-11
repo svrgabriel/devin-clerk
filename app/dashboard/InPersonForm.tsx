@@ -44,7 +44,7 @@ export function InPersonForm() {
       <input
         required
         className={INPUT}
-        placeholder="ID do doador (ex.: user_…)"
+        placeholder="ID do doador (ex.: DOA-XXXX-XXXX)"
         value={donorId}
         onChange={(e) => setDonorId(e.target.value)}
       />
