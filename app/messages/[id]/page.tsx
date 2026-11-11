@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireProfile } from "@/lib/profile";
 import { MessageForm } from "./MessageForm";
+import { BlockToggle, MessageList } from "./MessageList";
 
 export default async function ConversationPage({
   params,
@@ -13,7 +14,7 @@ export default async function ConversationPage({
   const sql = await db();
 
   const [conv] = await sql`
-    SELECT c.id, c.donor_user_id, i.name AS institution_name,
+    SELECT c.id, c.donor_user_id, c.blocked, i.name AS institution_name,
            i.clerk_user_id AS institution_owner
     FROM conversations c
     JOIN institutions i ON i.id = c.institution_id
@@ -39,28 +40,26 @@ export default async function ConversationPage({
 
   return (
     <section className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-12">
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <div className="flex flex-col gap-3">
-        {messages.length === 0 && (
-          <p className="text-black/60">Nenhuma mensagem ainda. Diga olá!</p>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">{title}</h1>
+        {role === "instituicao" && (
+          <BlockToggle conversationId={conv.id} blocked={conv.blocked} />
         )}
-        {messages.map((msg) => {
-          const mine = msg.sender_user_id === userId;
-          return (
-            <div
-              key={msg.id}
-              className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${
-                mine
-                  ? "self-end bg-accent text-white"
-                  : "self-start border border-black/10 bg-white"
-              }`}
-            >
-              {msg.body}
-            </div>
-          );
-        })}
       </div>
-      <MessageForm conversationId={conv.id} />
+      {conv.blocked && (
+        <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Esta conversa está bloqueada pela instituição.
+        </p>
+      )}
+      <MessageList
+        messages={messages.map((m) => ({
+          id: m.id,
+          sender_user_id: m.sender_user_id,
+          body: m.body,
+        }))}
+        userId={userId}
+      />
+      {!conv.blocked && <MessageForm conversationId={conv.id} />}
     </section>
   );
 }
