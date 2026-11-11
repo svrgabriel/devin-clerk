@@ -21,6 +21,12 @@ async function init() {
   await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS pix_key TEXT`;
   await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION`;
   await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS address TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS hours TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS story TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS instagram TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS facebook TEXT`;
+  await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS website TEXT`;
   await sql`
     DELETE FROM institutions a
     USING institutions b
@@ -56,6 +62,15 @@ async function init() {
       sender_user_id TEXT NOT NULL,
       body TEXT NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS donor_profiles (
+      clerk_user_id TEXT PRIMARY KEY,
+      description TEXT,
+      instagram TEXT,
+      facebook TEXT,
+      website TEXT
     )
   `;
   await sql`

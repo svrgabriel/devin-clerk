@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireProfile } from "@/lib/profile";
 import { ChatButton } from "./ChatButton";
@@ -75,15 +76,28 @@ export default async function NeedsPage() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex flex-col gap-1">
-                  <h2 className="text-lg font-semibold">{institution.name}</h2>
+                  <Link
+                    href={`/institutions/${id}`}
+                    className="text-lg font-semibold hover:text-accent"
+                  >
+                    {institution.name}
+                  </Link>
                   <p className="text-sm text-black/60">
                     {institution.cause}
                     {institution.city ? ` · ${institution.city}` : ""}
                   </p>
                 </div>
-                {role === "doador" && institution.contactable && (
-                  <ChatButton institutionId={id} />
-                )}
+                <div className="flex flex-col items-end gap-2">
+                  {role === "doador" && institution.contactable && (
+                    <ChatButton institutionId={id} />
+                  )}
+                  <Link
+                    href={`/institutions/${id}#entrega`}
+                    className="rounded-full border border-black/15 px-3 py-1 text-xs font-medium hover:border-accent/40 hover:text-accent"
+                  >
+                    Levar ao local
+                  </Link>
+                </div>
               </div>
               <ul className="flex flex-col gap-2">
                 {needs.map((need) => (
