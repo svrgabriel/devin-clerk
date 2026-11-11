@@ -13,6 +13,7 @@ type Fields = {
   instagram: string;
   facebook: string;
   website: string;
+  photos: string;
 };
 
 const INPUT =
@@ -93,6 +94,13 @@ export function InstitutionProfileForm({ initial }: { initial: Fields }) {
         placeholder="Site próprio (URL)"
         value={fields.website}
         onChange={(e) => set("website", e.target.value)}
+      />
+      <textarea
+        className={INPUT}
+        rows={3}
+        placeholder={"Fotos — uma URL por linha"}
+        value={fields.photos}
+        onChange={(e) => set("photos", e.target.value)}
       />
       <textarea
         className={`${INPUT} sm:col-span-2`}

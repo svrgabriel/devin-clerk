@@ -8,6 +8,7 @@ type Fields = {
   instagram: string;
   facebook: string;
   website: string;
+  photoUrl: string;
 };
 
 const INPUT = "w-full rounded-lg border border-black/15 px-3 py-2 text-sm";
@@ -64,6 +65,12 @@ export function DonorProfileForm({ initial }: { initial: Fields }) {
         placeholder="Site próprio (URL)"
         value={fields.website}
         onChange={(e) => set("website", e.target.value)}
+      />
+      <input
+        className={INPUT}
+        placeholder="Foto de perfil (URL da imagem)"
+        value={fields.photoUrl}
+        onChange={(e) => set("photoUrl", e.target.value)}
       />
       <div className="flex items-center gap-3 sm:col-span-2">
         <button

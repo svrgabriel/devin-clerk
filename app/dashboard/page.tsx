@@ -25,7 +25,7 @@ export default async function DashboardPage() {
       ? (
           await sql`
             SELECT id, name, cause, city, pix_key, address, hours, story,
-                   instagram, facebook, website
+                   instagram, facebook, website, photos
             FROM institutions WHERE clerk_user_id = ${userId}
           `
         )[0]
@@ -40,7 +40,7 @@ export default async function DashboardPage() {
     role === "doador"
       ? (
           await sql`
-            SELECT description, instagram, facebook, website
+            SELECT description, instagram, facebook, website, photo_url
             FROM donor_profiles WHERE clerk_user_id = ${userId}
           `
         )[0]
@@ -49,7 +49,17 @@ export default async function DashboardPage() {
   return (
     <section className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-12">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold">Olá, {name}!</h1>
+        <div className="flex items-center gap-3">
+          {donorProfile?.photo_url && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={donorProfile.photo_url}
+              alt="Foto de perfil"
+              className="h-12 w-12 rounded-full border border-black/10 object-cover"
+            />
+          )}
+          <h1 className="text-3xl font-bold">Olá, {name}!</h1>
+        </div>
         <p className="text-lg text-black/70">
           {role === "doador"
             ? "Bem-vindo ao seu painel de doador."
@@ -157,6 +167,7 @@ export default async function DashboardPage() {
               instagram: myInstitution.instagram ?? "",
               facebook: myInstitution.facebook ?? "",
               website: myInstitution.website ?? "",
+              photos: myInstitution.photos ?? "",
             }}
           />
         ) : (
@@ -166,6 +177,7 @@ export default async function DashboardPage() {
               instagram: donorProfile?.instagram ?? "",
               facebook: donorProfile?.facebook ?? "",
               website: donorProfile?.website ?? "",
+              photoUrl: donorProfile?.photo_url ?? "",
             }}
           />
         )}

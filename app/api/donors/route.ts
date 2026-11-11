@@ -11,12 +11,14 @@ export async function POST(request: Request) {
     );
   }
 
-  const { description, instagram, facebook, website } = await request.json();
+  const { description, instagram, facebook, website, photoUrl } =
+    await request.json();
   for (const [name, value] of Object.entries({
     description,
     instagram,
     facebook,
     website,
+    photoUrl,
   })) {
     if (value !== undefined && (typeof value !== "string" || value.length > 2000)) {
       return Response.json({ error: `Campo ${name} inválido.` }, { status: 400 });
@@ -26,13 +28,14 @@ export async function POST(request: Request) {
   const clean = (v?: string) => (typeof v === "string" && v.trim() ? v.trim() : null);
   const sql = await db();
   await sql`
-    INSERT INTO donor_profiles (clerk_user_id, description, instagram, facebook, website)
-    VALUES (${profile.userId}, ${clean(description)}, ${clean(instagram)}, ${clean(facebook)}, ${clean(website)})
+    INSERT INTO donor_profiles (clerk_user_id, description, instagram, facebook, website, photo_url)
+    VALUES (${profile.userId}, ${clean(description)}, ${clean(instagram)}, ${clean(facebook)}, ${clean(website)}, ${clean(photoUrl)})
     ON CONFLICT (clerk_user_id) DO UPDATE SET
       description = EXCLUDED.description,
       instagram = EXCLUDED.instagram,
       facebook = EXCLUDED.facebook,
-      website = EXCLUDED.website
+      website = EXCLUDED.website,
+      photo_url = EXCLUDED.photo_url
   `;
   return Response.json({ ok: true });
 }

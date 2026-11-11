@@ -9,6 +9,7 @@ const FIELDS = [
   "instagram",
   "facebook",
   "website",
+  "photos",
   "cause",
   "city",
 ] as const;
@@ -21,6 +22,7 @@ const COLUMN: Record<(typeof FIELDS)[number], string> = {
   instagram: "instagram",
   facebook: "facebook",
   website: "website",
+  photos: "photos",
   cause: "cause",
   city: "city",
 };
