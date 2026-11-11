@@ -112,7 +112,8 @@ async function init() {
           pix_key = COALESCE(pix_key, ${inst.pixKey ?? null}),
           address = COALESCE(address, ${inst.address ?? null}),
           hours = COALESCE(hours, ${inst.hours ?? null}),
-          story = COALESCE(story, ${inst.story ?? null})
+          story = COALESCE(story, ${inst.story ?? null}),
+          photos = COALESCE(photos, ${inst.photos ?? null})
       WHERE name = ${inst.name} AND clerk_user_id IS NULL
     `;
   }
@@ -120,8 +121,8 @@ async function init() {
   if (count === 0) {
     for (const inst of appConfig.institutions) {
       const [row] = await sql`
-        INSERT INTO institutions (name, cause, city, pix_key, address, hours, story, lat, lng)
-        VALUES (${inst.name}, ${inst.cause}, ${inst.city}, ${inst.pixKey ?? null}, ${inst.address ?? null}, ${inst.hours ?? null}, ${inst.story ?? null}, ${inst.lat ?? null}, ${inst.lng ?? null})
+        INSERT INTO institutions (name, cause, city, pix_key, address, hours, story, photos, lat, lng)
+        VALUES (${inst.name}, ${inst.cause}, ${inst.city}, ${inst.pixKey ?? null}, ${inst.address ?? null}, ${inst.hours ?? null}, ${inst.story ?? null}, ${inst.photos ?? null}, ${inst.lat ?? null}, ${inst.lng ?? null})
         RETURNING id
       `;
       for (const need of inst.needs) {
