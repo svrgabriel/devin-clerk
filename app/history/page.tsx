@@ -34,7 +34,7 @@ export default async function HistoryPage() {
     <section className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-12">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold">
-          {role === "doador" ? "Suas doações" : "Doações recebidas"}
+          {role === "doador" ? "Suas doações" : "Doações registradas"}
         </h1>
         <p className="text-lg text-black/70">
           {donations.length > 0

@@ -70,12 +70,13 @@ async function init() {
   // Seed demo institutions once so the feed has content.
   const { appConfig } = await import("@/app.config");
   for (const inst of appConfig.institutions) {
-    if (inst.lat != null && inst.lng != null) {
-      await sql`
-        UPDATE institutions SET lat = ${inst.lat}, lng = ${inst.lng}
-        WHERE name = ${inst.name} AND lat IS NULL
-      `;
-    }
+    await sql`
+      UPDATE institutions
+      SET lat = COALESCE(lat, ${inst.lat ?? null}),
+          lng = COALESCE(lng, ${inst.lng ?? null}),
+          pix_key = COALESCE(pix_key, ${inst.pixKey ?? null})
+      WHERE name = ${inst.name} AND clerk_user_id IS NULL
+    `;
   }
   const [{ count }] = await sql`SELECT count(*)::int FROM institutions`;
   if (count === 0) {
