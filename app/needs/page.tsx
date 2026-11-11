@@ -28,6 +28,7 @@ export default async function NeedsPage() {
   const rows = await sql`
     SELECT i.id AS institution_id, i.name, i.cause, i.city,
            i.clerk_user_id IS NOT NULL AS contactable,
+           (i.address IS NOT NULL OR i.hours IS NOT NULL) AS has_dropoff,
            n.item, n.priority
     FROM institutions i
     LEFT JOIN needs n ON n.institution_id = i.id
@@ -36,7 +37,7 @@ export default async function NeedsPage() {
 
   const institutions = new Map<
     number,
-    { name: string; cause: string; city: string; contactable: boolean; needs: { item: string; priority: string }[] }
+    { name: string; cause: string; city: string; contactable: boolean; hasDropoff: boolean; needs: { item: string; priority: string }[] }
   >();
   for (const row of rows) {
     if (!institutions.has(row.institution_id)) {
@@ -45,6 +46,7 @@ export default async function NeedsPage() {
         cause: row.cause,
         city: row.city,
         contactable: row.contactable,
+        hasDropoff: row.has_dropoff,
         needs: [],
       });
     }
@@ -91,12 +93,14 @@ export default async function NeedsPage() {
                   {role === "doador" && institution.contactable && (
                     <ChatButton institutionId={id} />
                   )}
-                  <Link
-                    href={`/institutions/${id}#entrega`}
-                    className="rounded-full border border-black/15 px-3 py-1 text-xs font-medium hover:border-accent/40 hover:text-accent"
-                  >
-                    Levar ao local
-                  </Link>
+                  {institution.hasDropoff && (
+                    <Link
+                      href={`/institutions/${id}#entrega`}
+                      className="rounded-full border border-black/15 px-3 py-1 text-xs font-medium hover:border-accent/40 hover:text-accent"
+                    >
+                      Levar ao local
+                    </Link>
+                  )}
                 </div>
               </div>
               <ul className="flex flex-col gap-2">

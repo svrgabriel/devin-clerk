@@ -48,7 +48,10 @@ export async function POST(request: Request) {
           { status: 400 },
         );
       }
-      updates[COLUMN[field]] = value.trim() || null;
+      const trimmed = value.trim();
+      // cause/city are NOT NULL columns: empty input keeps the current value.
+      if (!trimmed && (field === "cause" || field === "city")) continue;
+      updates[COLUMN[field]] = trimmed || null;
     }
   }
   if (Object.keys(updates).length === 0) {
