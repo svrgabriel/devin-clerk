@@ -11,21 +11,52 @@ export default async function DonorProfilePage({
 }) {
   await requireProfile();
   const { id } = await params;
-  const norm = normalizeDonorId(decodeURIComponent(id));
+  const norm = normalizeDonorId(id);
   if (!norm) notFound();
 
   const sql = await db();
-  const col = donorIdNormSql("clerk_user_id");
+
+  const profNorm = donorIdNormSql("clerk_user_id");
   const [profile] = await sql`
     SELECT clerk_user_id, description, instagram, facebook, website, photo_url
     FROM donor_profiles
-    WHERE ${sql.unsafe(col)} = ${norm}
-       OR ${norm} LIKE ${sql.unsafe(col)} || '%'
-       OR ${sql.unsafe(col)} LIKE ${norm} || '%'
+    WHERE ${sql.unsafe(profNorm)} = ${norm}
+       OR ${sql.unsafe(profNorm)} LIKE ${norm} || '%'
     LIMIT 1
   `;
 
-  const clerkId = profile?.clerk_user_id ?? null;
+  // Resolve a real Clerk user id: profile row, or a money donation that stored it.
+  let clerkId: string | null = profile?.clerk_user_id ?? null;
+  if (!clerkId) {
+    const donNorm = donorIdNormSql("donor_user_id");
+    const [donation] = await sql`
+      SELECT donor_user_id FROM donations
+      WHERE ${sql.unsafe(donNorm)} = ${norm}
+      LIMIT 1
+    `;
+    if (donation?.donor_user_id?.startsWith("user_")) {
+      clerkId = donation.donor_user_id;
+    }
+  }
+
+  // Existence: profile, or any donation row referencing this donor.
+  let exists = Boolean(profile);
+  if (!exists) {
+    const ipNorm = donorIdNormSql("donor_user_id");
+    const [row] = await sql`
+      SELECT 1 FROM (
+        SELECT donor_user_id FROM donations
+        UNION ALL
+        SELECT donor_user_id FROM in_person_donations
+      ) t
+      WHERE ${sql.unsafe(ipNorm)} = ${norm}
+      LIMIT 1
+    `;
+    exists = Boolean(row) || Boolean(clerkId);
+  }
+  if (!exists) notFound();
+
+  // Only trust Clerk for the display name — never institution-submitted text.
   let name = "Doador";
   if (clerkId) {
     try {
@@ -37,17 +68,7 @@ export default async function DonorProfilePage({
     } catch {
       /* keep fallback name */
     }
-  } else {
-    const [row] = await sql`
-      SELECT donor_name FROM in_person_donations
-      WHERE ${sql.unsafe(donorIdNormSql("donor_user_id"))} = ${norm}
-         OR ${norm} LIKE ${sql.unsafe(donorIdNormSql("donor_user_id"))} || '%'
-         OR ${sql.unsafe(donorIdNormSql("donor_user_id"))} LIKE ${norm} || '%'
-      ORDER BY created_at DESC LIMIT 1
-    `;
-    if (row?.donor_name) name = row.donor_name;
   }
-  if (!profile && !clerkId && name === "Doador") notFound();
 
   const social = [
     { label: "Instagram", url: profile?.instagram },

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireProfile } from "@/lib/profile";
-import { donorIdNormSql, normalizeDonorId } from "@/lib/donor";
+import { donorCode, donorIdNormSql, normalizeDonorId } from "@/lib/donor";
 
 const fmt = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -18,6 +18,7 @@ export default async function HistoryPage() {
   const sql = await db();
 
   const donorNorm = normalizeDonorId(userId);
+  const donorCodeNorm = normalizeDonorId(donorCode(userId));
   const pid = donorIdNormSql("p.donor_user_id");
   const donations =
     role === "doador"
@@ -33,9 +34,7 @@ export default async function HistoryPage() {
                    NULL AS donor_name, NULL AS donor_user_id
             FROM in_person_donations p
             JOIN institutions i ON i.id = p.institution_id
-            WHERE ${sql.unsafe(pid)} = ${donorNorm}
-               OR ${donorNorm} LIKE ${sql.unsafe(pid)} || '%'
-               OR ${sql.unsafe(pid)} LIKE ${donorNorm} || '%'
+            WHERE ${sql.unsafe(pid)} IN (${donorNorm}, ${donorCodeNorm})
           ) t
           ORDER BY created_at DESC
         `
