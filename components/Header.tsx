@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import { appConfig } from "@/app.config";
@@ -72,6 +73,8 @@ export function Header() {
   const [dark, setDark] = useState(false);
   const { lang, setLang } = useLang();
   const t = useT();
+  const router = useRouter();
+  const pathname = usePathname();
   useEffect(() => {
     const isDark = localStorage.getItem("theme") === "dark";
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -91,10 +94,21 @@ export function Header() {
   return (
     <header className="border-b border-black/10 bg-white/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
-        <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-          <span aria-hidden>{appConfig.emoji}</span>
-          {appConfig.name}
-        </Link>
+        <div className="flex items-center gap-3">
+          {pathname !== "/" && (
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-1 text-sm hover:text-accent"
+              aria-label="Voltar"
+            >
+              ← Voltar
+            </button>
+          )}
+          <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
+            <span aria-hidden>{appConfig.emoji}</span>
+            {appConfig.name}
+          </Link>
+        </div>
         <nav className="flex items-center gap-5 text-sm">
           <NavMenu
             label={t("nav.explorar")}
