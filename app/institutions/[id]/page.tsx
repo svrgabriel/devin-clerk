@@ -49,15 +49,15 @@ export default async function InstitutionProfilePage({
     <section className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-12">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold">{institution.name}</h1>
-        <p className="text-lg text-black/70">
+        <p className="text-lg text-black/70 dark:text-white/70">
           {institution.cause}
           {institution.city ? ` · ${institution.city}` : ""}
           {institution.cnpj ? ` · CNPJ ${institution.cnpj}` : ""}
         </p>
         {institution.pix_key && (
-          <p className="text-sm text-black/60">
+          <p className="text-sm text-black/60 dark:text-white/60">
             Chave Pix:{" "}
-            <code className="rounded bg-black/5 px-2 py-0.5 font-mono">
+            <code className="rounded bg-black/5 dark:bg-white/10 px-2 py-0.5 font-mono">
               {institution.pix_key}
             </code>
           </p>
@@ -81,7 +81,7 @@ export default async function InstitutionProfilePage({
       {institution.story && (
         <div className="flex flex-col gap-2 rounded-2xl border border-black/10 bg-white p-5">
           <h2 className="font-semibold">Nossa história</h2>
-          <p className="whitespace-pre-line text-sm text-black/80">
+          <p className="whitespace-pre-line text-sm text-black/80 dark:text-white/80">
             {institution.story}
           </p>
         </div>
@@ -98,7 +98,7 @@ export default async function InstitutionProfilePage({
             {institution.cep ? ` — CEP ${institution.cep}` : ""}
           </p>
         ) : (
-          <p className="text-sm text-black/50">Endereço não informado.</p>
+          <p className="text-sm text-black/50 dark:text-white/50">Endereço não informado.</p>
         )}
         {institution.hours ? (
           <p className="text-sm">
@@ -106,7 +106,7 @@ export default async function InstitutionProfilePage({
             {institution.hours}
           </p>
         ) : (
-          <p className="text-sm text-black/50">
+          <p className="text-sm text-black/50 dark:text-white/50">
             Horário de funcionamento não informado.
           </p>
         )}
@@ -119,7 +119,7 @@ export default async function InstitutionProfilePage({
             {needs.map((n) => (
               <li key={n.item} className="flex justify-between gap-3">
                 <span>{n.item}</span>
-                <span className="text-black/50">
+                <span className="text-black/50 dark:text-white/50">
                   {priorityLabels[n.priority] ?? n.priority}
                 </span>
               </li>
