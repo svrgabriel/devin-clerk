@@ -28,10 +28,10 @@ export default async function InstitutionsPage({
     (r) => (!cause || r.cause === cause) && (!city || r.city === city),
   );
 
-  function filterHref(next: { cause?: string; city?: string }) {
+  function filterHref(next: { cause?: string | null; city?: string | null }) {
     const params = new URLSearchParams();
-    const c = next.cause ?? cause;
-    const ci = next.city ?? city;
+    const c = next.cause === undefined ? cause : (next.cause ?? undefined);
+    const ci = next.city === undefined ? city : (next.city ?? undefined);
     if (c) params.set("cause", c);
     if (ci) params.set("city", ci);
     const q = params.toString();
@@ -50,22 +50,22 @@ export default async function InstitutionsPage({
       <div className="flex flex-wrap gap-6 text-sm">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-medium text-black/60">Causa:</span>
-          <Link href={filterHref({ cause: undefined })} className={`rounded-full border px-3 py-1 ${!cause ? "border-accent bg-accent/10 text-accent" : "border-black/15"}`}>
+          <Link href={filterHref({ cause: null })} className={`rounded-full border px-3 py-1 ${!cause ? "border-accent bg-accent/10 text-accent" : "border-black/15"}`}>
             Todas
           </Link>
           {causes.map((c) => (
-            <Link key={c} href={filterHref({ cause: c === cause ? undefined : c })} className={`rounded-full border px-3 py-1 ${cause === c ? "border-accent bg-accent/10 text-accent" : "border-black/15"}`}>
+            <Link key={c} href={filterHref({ cause: c === cause ? null : c })} className={`rounded-full border px-3 py-1 ${cause === c ? "border-accent bg-accent/10 text-accent" : "border-black/15"}`}>
               {c}
             </Link>
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-medium text-black/60">Cidade:</span>
-          <Link href={filterHref({ city: undefined })} className={`rounded-full border px-3 py-1 ${!city ? "border-accent bg-accent/10 text-accent" : "border-black/15"}`}>
+          <Link href={filterHref({ city: null })} className={`rounded-full border px-3 py-1 ${!city ? "border-accent bg-accent/10 text-accent" : "border-black/15"}`}>
             Todas
           </Link>
           {cities.map((c) => (
-            <Link key={c} href={filterHref({ city: c === city ? undefined : c })} className={`rounded-full border px-3 py-1 ${city === c ? "border-accent bg-accent/10 text-accent" : "border-black/15"}`}>
+            <Link key={c} href={filterHref({ city: c === city ? null : c })} className={`rounded-full border px-3 py-1 ${city === c ? "border-accent bg-accent/10 text-accent" : "border-black/15"}`}>
               {c}
             </Link>
           ))}
