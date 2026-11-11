@@ -20,7 +20,13 @@ function NavMenu({
   items: { href: string; label: string; badge?: number }[];
 }) {
   return (
-    <div className="group relative">
+    <div
+      className="group relative"
+      onMouseEnter={() => {
+        const el = document.activeElement as HTMLElement | null;
+        if (el && el.tagName === "A") el.blur();
+      }}
+    >
       <button className="flex items-center gap-1 hover:text-accent">
         {label}
         <svg
@@ -112,7 +118,13 @@ export function Header() {
               { href: "/messages", label: t("nav.mensagens"), badge: unread },
             ]}
           />
-          <div className="group relative">
+          <div
+            className="group relative"
+            onMouseEnter={() => {
+              const el = document.activeElement as HTMLElement | null;
+              if (el && el.tagName === "A") el.blur();
+            }}
+          >
             <button className="flex items-center gap-1 hover:text-accent" aria-label="Idioma">
               {LANGS.find((l) => l.code === lang)?.flag}
             </button>

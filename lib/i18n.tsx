@@ -6,23 +6,22 @@ export const LANGS = [
   { code: "pt", label: "Português", flag: "🇧🇷" },
   { code: "en", label: "English", flag: "🇺🇸" },
   { code: "es", label: "Español", flag: "🇪🇸" },
-  { code: "zh", label: "", flag: "🇨🇳" },
 ] as const;
 export type Lang = (typeof LANGS)[number]["code"];
 
 const DICT: Record<string, Record<Lang, string>> = {
-  "nav.explorar": { pt: "Explorar", en: "Explore", es: "Explorar", zh: "" },
-  "nav.instituicoes": { pt: "Instituições", en: "Institutions", es: "Instituciones", zh: "" },
-  "nav.necessidades": { pt: "Necessidades", en: "Needs", es: "Necesidades", zh: "" },
-  "nav.mapa": { pt: "Mapa", en: "Map", es: "Mapa", zh: "" },
-  "nav.doar": { pt: "Doar", en: "Donate", es: "Donar", zh: "" },
-  "nav.combinar": { pt: "Combinar", en: "Match", es: "Combinar", zh: "" },
-  "nav.minhasDoacoes": { pt: "Minhas doações", en: "My donations", es: "Mis donaciones", zh: "" },
-  "nav.conta": { pt: "Conta", en: "Account", es: "Cuenta", zh: "" },
-  "nav.painel": { pt: "Painel", en: "Dashboard", es: "Panel", zh: "" },
-  "nav.mensagens": { pt: "Mensagens", en: "Messages", es: "Mensajes", zh: "" },
-  "nav.entrar": { pt: "Entrar", en: "Sign in", es: "Entrar", zh: "" },
-  "nav.cadastrar": { pt: "Cadastrar", en: "Sign up", es: "Registrarse", zh: "" },
+  "nav.explorar": { pt: "Explorar", en: "Explore", es: "Explorar" },
+  "nav.instituicoes": { pt: "Instituições", en: "Institutions", es: "Instituciones" },
+  "nav.necessidades": { pt: "Necessidades", en: "Needs", es: "Necesidades" },
+  "nav.mapa": { pt: "Mapa", en: "Map", es: "Mapa" },
+  "nav.doar": { pt: "Doar", en: "Donate", es: "Donar" },
+  "nav.combinar": { pt: "Combinar", en: "Match", es: "Combinar" },
+  "nav.minhasDoacoes": { pt: "Minhas doações", en: "My donations", es: "Mis donaciones" },
+  "nav.conta": { pt: "Conta", en: "Account", es: "Cuenta" },
+  "nav.painel": { pt: "Painel", en: "Dashboard", es: "Panel" },
+  "nav.mensagens": { pt: "Mensagens", en: "Messages", es: "Mensajes" },
+  "nav.entrar": { pt: "Entrar", en: "Sign in", es: "Entrar" },
+  "nav.cadastrar": { pt: "Cadastrar", en: "Sign up", es: "Registrarse" },
 };
 
 const LangContext = createContext<{ lang: Lang; setLang: (l: Lang) => void }>({
@@ -42,7 +41,7 @@ export function LangProvider({ children }: { children: React.ReactNode }) {
   function change(l: Lang) {
     setLang(l);
     localStorage.setItem("lang", l);
-    document.documentElement.lang = l === "zh" ? "zh-CN" : l === "pt" ? "pt-BR" : l;
+    document.documentElement.lang = l === "pt" ? "pt-BR" : l;
   }
   return (
     <LangContext.Provider value={{ lang, setLang: change }}>
