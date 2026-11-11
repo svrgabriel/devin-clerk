@@ -16,7 +16,7 @@ export default async function DashboardPage() {
     "there";
 
   const [nextFeature] = appConfig.upcomingFeatures;
-  const sql = db();
+  const sql = await db();
 
   const myInstitution =
     role === "instituicao"

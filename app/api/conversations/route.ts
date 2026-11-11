@@ -1,8 +1,11 @@
 import { db } from "@/lib/db";
-import { requireProfile } from "@/lib/profile";
+import { apiProfile } from "@/lib/profile";
 
 export async function POST(req: Request) {
-  const { userId, role } = await requireProfile();
+  const result = await apiProfile();
+  if (result instanceof Response) return result;
+  const { userId, role } = result;
+
   if (role !== "doador") {
     return Response.json(
       { error: "Apenas doadores iniciam conversas." },
@@ -10,17 +13,26 @@ export async function POST(req: Request) {
     );
   }
 
-  const { institution_id } = (await req.json()) as { institution_id?: number };
+  const { institution_id } = (await req.json()) as {
+    institution_id?: number;
+  };
   if (!institution_id) {
-    return Response.json({ error: "institution_id obrigatório" }, { status: 400 });
+    return Response.json(
+      { error: "institution_id obrigatório" },
+      { status: 400 },
+    );
   }
 
-  const sql = db();
+  const sql = await db();
   const [institution] = await sql`
-    SELECT id FROM institutions WHERE id = ${institution_id}
+    SELECT id FROM institutions
+    WHERE id = ${institution_id} AND clerk_user_id IS NOT NULL
   `;
   if (!institution) {
-    return Response.json({ error: "Instituição não encontrada" }, { status: 404 });
+    return Response.json(
+      { error: "Instituição não encontrada" },
+      { status: 404 },
+    );
   }
 
   const [conversation] = await sql`

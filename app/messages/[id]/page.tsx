@@ -10,7 +10,7 @@ export default async function ConversationPage({
 }) {
   const { userId, role } = await requireProfile();
   const { id } = await params;
-  const sql = db();
+  const sql = await db();
 
   const [conv] = await sql`
     SELECT c.id, c.donor_user_id, i.name AS institution_name,
