@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Suspense } from "react";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
@@ -41,6 +43,7 @@ function NavMenu({
             <Link
               key={item.href}
               href={item.href}
+              onClick={(e) => e.currentTarget.blur()}
               className="block px-4 py-2 hover:bg-accent/10 hover:text-accent"
             >
               {item.label}
