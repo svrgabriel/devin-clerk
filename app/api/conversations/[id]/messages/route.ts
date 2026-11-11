@@ -61,7 +61,8 @@ export async function POST(
   const { id } = await params;
   const sql = await db();
 
-  if (!(await participant(sql, Number(id), userId, role))) {
+  const convId = Number(id);
+  if (!(await participant(sql, convId, userId, role))) {
     return Response.json({ error: "Not found" }, { status: 404 });
   }
 
@@ -70,9 +71,14 @@ export async function POST(
     return Response.json({ error: "Mensagem vazia" }, { status: 400 });
   }
 
+  const [conv] = await sql`SELECT blocked FROM conversations WHERE id = ${convId}`;
+  if (conv.blocked) {
+    return Response.json({ error: "Conversa bloqueada." }, { status: 403 });
+  }
+
   const [message] = await sql`
     INSERT INTO messages (conversation_id, sender_user_id, body)
-    VALUES (${Number(id)}, ${userId}, ${body.trim()})
+    VALUES (${convId}, ${userId}, ${body.trim()})
     RETURNING id, sender_user_id, body, created_at
   `;
   return Response.json({ message }, { status: 201 });

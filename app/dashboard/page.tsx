@@ -7,6 +7,7 @@ import { requireProfile } from "@/lib/profile";
 import { NeedForm } from "./NeedForm";
 import { InstitutionProfileForm } from "./InstitutionProfileForm";
 import { DonorProfileForm } from "./DonorProfileForm";
+import { CopyId, InPersonForm } from "./InPersonForm";
 
 export default async function DashboardPage() {
   await auth.protect();
@@ -45,6 +46,20 @@ export default async function DashboardPage() {
           `
         )[0]
       : null;
+  const receivedDonations = myInstitution
+    ? await sql`
+        SELECT donor_name, amount_cents, method, created_at
+        FROM donations WHERE institution_id = ${myInstitution.id}
+        ORDER BY created_at DESC
+      `
+    : [];
+  const inPersonDonations = myInstitution
+    ? await sql`
+        SELECT donor_name, donor_user_id, item, created_at
+        FROM in_person_donations WHERE institution_id = ${myInstitution.id}
+        ORDER BY created_at DESC
+      `
+    : [];
 
   return (
     <section className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-12">
@@ -153,8 +168,76 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      {role === "doador" && (
+        <div className="flex flex-col gap-2 rounded-2xl border border-black/10 bg-white p-5">
+          <h2 className="font-semibold">Seu perfil</h2>
+          <p className="text-sm text-black/70">
+            {donorProfile?.description || "Sem descrição ainda — edite abaixo."}
+          </p>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-black/50">Seu ID:</span>
+            <CopyId id={userId} />
+          </div>
+        </div>
+      )}
+
+      {role === "instituicao" && myInstitution && (
+        <div className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-5">
+          <h2 className="font-semibold">Doações recebidas</h2>
+          {receivedDonations.length === 0 ? (
+            <p className="text-sm text-black/60">Nenhuma doação registrada ainda.</p>
+          ) : (
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="text-black/50">
+                  <th className="py-1 pr-3 font-medium">Doador</th>
+                  <th className="py-1 pr-3 font-medium">Data</th>
+                  <th className="py-1 pr-3 font-medium">Valor</th>
+                  <th className="py-1 font-medium">Pagamento</th>
+                </tr>
+              </thead>
+              <tbody>
+                {receivedDonations.map((d, i) => (
+                  <tr key={i} className="border-t border-black/5">
+                    <td className="py-2 pr-3">{d.donor_name ?? "Doador"}</td>
+                    <td className="py-2 pr-3">
+                      {new Date(d.created_at).toLocaleString("pt-BR")}
+                    </td>
+                    <td className="py-2 pr-3">
+                      R$ {(d.amount_cents / 100).toFixed(2).replace(".", ",")}
+                    </td>
+                    <td className="py-2 capitalize">{d.method}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {role === "instituicao" && myInstitution && (
+        <div className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-5">
+          <h2 className="font-semibold">Registrar doação presencial</h2>
+          <InPersonForm />
+          {inPersonDonations.length > 0 && (
+            <ul className="flex flex-col gap-1 text-sm">
+              {inPersonDonations.map((d, i) => (
+                <li key={i}>
+                  <span className="font-medium">{d.item}</span> — {d.donor_name}{" "}
+                  <span className="font-mono text-xs text-black/50">
+                    ({d.donor_user_id})
+                  </span>{" "}
+                  <span className="text-black/50">
+                    em {new Date(d.created_at).toLocaleString("pt-BR")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       <div className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-5">
-        <h2 className="font-semibold">Configurações do perfil</h2>
         {role === "instituicao" && myInstitution ? (
           <InstitutionProfileForm
             initial={{

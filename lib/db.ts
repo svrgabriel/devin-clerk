@@ -79,6 +79,19 @@ async function init() {
   await sql`ALTER TABLE institutions ADD COLUMN IF NOT EXISTS accepts_messages BOOLEAN NOT NULL DEFAULT true`;
   await sql`ALTER TABLE conversations ADD COLUMN IF NOT EXISTS donor_last_read_at TIMESTAMPTZ NOT NULL DEFAULT now()`;
   await sql`ALTER TABLE conversations ADD COLUMN IF NOT EXISTS inst_last_read_at TIMESTAMPTZ NOT NULL DEFAULT now()`;
+  await sql`ALTER TABLE conversations ADD COLUMN IF NOT EXISTS blocked BOOLEAN NOT NULL DEFAULT false`;
+  await sql`ALTER TABLE donations ADD COLUMN IF NOT EXISTS donor_name TEXT`;
+  await sql`ALTER TABLE donations ADD COLUMN IF NOT EXISTS method TEXT NOT NULL DEFAULT 'pix'`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS in_person_donations (
+      id SERIAL PRIMARY KEY,
+      institution_id INT REFERENCES institutions(id) ON DELETE CASCADE,
+      donor_name TEXT NOT NULL,
+      donor_user_id TEXT NOT NULL,
+      item TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
   await sql`
     CREATE TABLE IF NOT EXISTS donations (
       id SERIAL PRIMARY KEY,
