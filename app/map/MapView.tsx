@@ -12,7 +12,13 @@ export type Point = {
   lng: number;
 };
 
-export function MapView({ points }: { points: Point[] }) {
+export function MapView({
+  points,
+  height = 480,
+}: {
+  points: Point[];
+  height?: number;
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -49,7 +55,9 @@ export function MapView({ points }: { points: Point[] }) {
           .addTo(map)
           .bindPopup(`<strong>${p.name}</strong><br/>${p.cause} · ${p.city}`);
       }
-      if (bounds.isValid()) {
+      if (points.length === 1) {
+        map.setView([points[0].lat, points[0].lng], 15);
+      } else if (bounds.isValid()) {
         map.fitBounds(bounds.pad(0.25));
       } else {
         map.setView([-20.3155, -40.3128], 11);
@@ -72,7 +80,8 @@ export function MapView({ points }: { points: Point[] }) {
   return (
     <div
       ref={ref}
-      className="h-[480px] w-full rounded-2xl border border-black/10 shadow-sm"
+      style={{ height }}
+      className="w-full rounded-2xl border border-black/10 shadow-sm"
     />
   );
 }

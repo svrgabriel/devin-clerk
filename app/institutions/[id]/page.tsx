@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireProfile } from "@/lib/profile";
 import { ChatButton } from "@/app/needs/ChatButton";
+import { MapView } from "@/app/map/MapView";
 
 const priorityLabels: Record<string, string> = {
   urgente: "Urgente",
@@ -23,7 +24,7 @@ export default async function InstitutionProfilePage({
   const sql = await db();
   const [institution] = await sql`
     SELECT id, name, cause, city, cnpj, cep, pix_key, address, hours, story,
-           instagram, facebook, website, photos,
+           instagram, facebook, website, photos, lat, lng,
            clerk_user_id IS NOT NULL AND accepts_messages AS contactable
     FROM institutions WHERE id = ${institutionId}
   `;
@@ -113,6 +114,21 @@ export default async function InstitutionProfilePage({
           <p className="text-sm text-black/50 dark:text-white/50">
             Horário de funcionamento não informado.
           </p>
+        )}
+        {institution.lat != null && institution.lng != null && (
+          <MapView
+            height={240}
+            points={[
+              {
+                id: institution.id,
+                name: institution.name,
+                cause: institution.cause,
+                city: institution.city,
+                lat: Number(institution.lat),
+                lng: Number(institution.lng),
+              },
+            ]}
+          />
         )}
       </div>
 
