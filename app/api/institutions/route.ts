@@ -29,6 +29,22 @@ const COLUMN: Record<(typeof FIELDS)[number], string> = {
   city: "city",
 };
 
+async function geocode(parts: (string | null | undefined)[]) {
+  const q = parts.filter(Boolean).join(", ");
+  if (!q) return null;
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`,
+      { headers: { "User-Agent": "DoeUVV/1.0" }, signal: AbortSignal.timeout(5000) },
+    );
+    const [hit] = (await res.json()) as { lat: string; lon: string }[];
+    if (!hit) return null;
+    return { lat: Number(hit.lat), lng: Number(hit.lon) };
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: Request) {
   const profile = await apiProfile();
   if (profile instanceof Response) return profile;
@@ -40,7 +56,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const updates: Record<string, string | boolean | null> = {};
+  const updates: Record<string, string | boolean | number | null> = {};
   if (body.acceptsMessages !== undefined) {
     if (typeof body.acceptsMessages !== "boolean") {
       return Response.json(
@@ -69,7 +85,28 @@ export async function POST(request: Request) {
     return Response.json({ error: "Nada para atualizar." }, { status: 400 });
   }
 
+  const addressChanged =
+    "address" in updates || "cep" in updates || "city" in updates;
+
   const sql = await db();
+  if (addressChanged) {
+    const [row] = await sql`
+      SELECT address, cep, city FROM institutions
+      WHERE clerk_user_id = ${profile.userId}
+    `;
+    if (row) {
+      const merged = { ...row, ...updates };
+      const point =
+        (await geocode([merged.address, merged.cep, merged.city, "Brasil"])) ??
+        (await geocode([merged.cep, "Brasil"])) ??
+        (await geocode([merged.city, "Espírito Santo", "Brasil"]));
+      if (point) {
+        updates.lat = point.lat;
+        updates.lng = point.lng;
+      }
+    }
+  }
+
   await sql`
     UPDATE institutions SET ${sql(updates)}
     WHERE clerk_user_id = ${profile.userId}
